@@ -41,3 +41,16 @@ data/raw/gis/delhi_buildings.geojson
 data/processed/gis/delhi_traffic_features.geojson
 data/raw/gis/delhi_road_network.geojson
 data/processed/satellite/delhi_satellite_indices.tif
+
+
+# Git backup
+.git-backup/
+
+# SQLite runtime files
+*.sqlite
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.db
+*.db-shm
+*.db-wal
