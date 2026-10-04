@@ -1,0 +1,28 @@
+{
+    "model": "Gradient Boosting",
+    "records_processed": 31357,
+    "features": 21,
+    "target": "AQI",
+    "actual_AQI": {
+        "minimum": 1.516,
+        "maximum": 390.8,
+        "mean": 31.256899856287497
+    },
+    "predicted_AQI": {
+        "minimum": 3.351483082582817,
+        "maximum": 392.44047242909664,
+        "mean": 31.28210210062384
+    },
+    "prediction_metrics": {
+        "MAE": 0.6850040382274134,
+        "RMSE": 1.234092901911273
+    },
+    "AQI_category_distribution": {
+        "Good": 26677,
+        "Satisfactory": 3954,
+        "Moderate": 710,
+        "Poor": 15,
+        "Very Poor": 1
+    },
+    "output_file": "C:\\Users\\rachn\\OneDrive\\Desktop\\UrbanMindAI\\UrbanMind-AI\\data\\processed\\ml\\aqi\\delhi_aqi_predictions.csv"
+}

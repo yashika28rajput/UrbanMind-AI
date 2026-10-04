@@ -1,0 +1,13 @@
+{
+    "wards": 272,
+    "total_population": 16368899,
+    "total_children_0_6": 1955738,
+    "mean_AQI": 31.16901640273745,
+    "mean_environmental_risk": 0.22998027824941467,
+    "mean_health_exposure_score": 17.60963689292509,
+    "health_exposure_distribution": {
+        "Low": 188,
+        "Moderate": 81,
+        "High": 3
+    }
+}

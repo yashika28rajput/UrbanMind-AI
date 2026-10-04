@@ -1,0 +1,28 @@
+{
+    "project": "UrbanMind AI",
+    "task": "Urban Heat Prediction",
+    "model": "Gradient Boosting",
+    "wards": 272,
+    "actual_LST": {
+        "minimum": 31.79328032284239,
+        "maximum": 39.1383131006918,
+        "mean": 34.79770617223395,
+        "median": 34.741842809934866
+    },
+    "predicted_LST": {
+        "minimum": 31.922473027214654,
+        "maximum": 38.71661601247018,
+        "mean": 34.79754154248775,
+        "median": 34.73425308667943
+    },
+    "heat_risk_distribution": {
+        "Moderate": 161,
+        "High": 90,
+        "Low": 11,
+        "Very High": 10
+    },
+    "prediction_error": {
+        "MAE": 0.023765027661013544,
+        "maximum_absolute_error": 0.7744969316220534
+    }
+}

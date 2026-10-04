@@ -1,0 +1,11 @@
+{
+    "total_wards": 272,
+    "wards_with_station": 29,
+    "wards_without_station": 243,
+    "mean_predicted_AQI": 31.55168571935371,
+    "aqi_category_distribution": {
+        "NaN": 243,
+        "Good": 27,
+        "Satisfactory": 2
+    }
+}

@@ -1,0 +1,11 @@
+{
+  "model_name": "Health Risk Estimator",
+  "target": "health_risk_score",
+  "features": [
+    "AQI_risk_index",
+    "heat_risk_index",
+    "population_vulnerability_index",
+    "health_exposure_score"
+  ],
+  "unit": "%"
+}

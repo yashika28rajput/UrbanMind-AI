@@ -1,0 +1,22 @@
+{
+    "total_wards": 272,
+    "aqi_mean": 31.16901640273745,
+    "aqi_min": 22.097923363531432,
+    "aqi_max": 53.54696992354441,
+    "mean_lst_C": 34.79770617223395,
+    "mean_predicted_lst_C": 34.79754154248774,
+    "mean_environmental_risk_score": 0.2299802782494147,
+    "risk_category_distribution": {
+        "Moderate": 161,
+        "Low": 102,
+        "High": 8,
+        "Very High": 1
+    },
+    "aqi_source_distribution": {
+        "interpolated": 243,
+        "direct_station": 29
+    },
+    "geometry_valid": true,
+    "missing_values": false,
+    "infinite_values": false
+}

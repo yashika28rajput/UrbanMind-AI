@@ -1,0 +1,20 @@
+{
+    "total_wards": 272,
+    "recommended_decisions": 272,
+    "mean_decision_score": 0.25546339536338003,
+    "mean_environmental_risk": 0.22998027824941467,
+    "mean_health_exposure": 17.60963689292509,
+    "mean_AQI": 31.169016402737444,
+    "intervention_distribution": {
+        "water_restoration": 186,
+        "sustainable_mobility": 78,
+        "roadside_greening": 7,
+        "green_cover": 1
+    },
+    "explanation_records": 272,
+    "outputs": {
+        "csv": "data/processed/decision\\delhi_ward_decision_explanations.csv",
+        "geojson": "data/processed/decision\\delhi_ward_decision_explanations.geojson",
+        "summary": "data/processed/decision\\decision_explanation_summary.json"
+    }
+}

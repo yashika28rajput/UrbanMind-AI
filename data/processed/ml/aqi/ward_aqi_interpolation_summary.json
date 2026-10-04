@@ -1,0 +1,16 @@
+{
+    "total_wards": 272,
+    "direct_station_wards": 29,
+    "interpolated_wards": 243,
+    "mean_final_AQI": 31.16901640273745,
+    "minimum_final_AQI": 22.097923363531432,
+    "maximum_final_AQI": 53.54696992354441,
+    "aqi_source_distribution": {
+        "interpolated": 243,
+        "direct_station": 29
+    },
+    "aqi_category_distribution": {
+        "Good": 270,
+        "Satisfactory": 2
+    }
+}

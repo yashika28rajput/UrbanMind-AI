@@ -1,0 +1,77 @@
+{
+    "project": "UrbanMind AI",
+    "dataset": "Ward Intervention Scenario Simulation",
+    "wards": 272,
+    "interventions": [
+        "green_cover",
+        "urban_forest",
+        "roadside_greening",
+        "cool_roof",
+        "water_restoration",
+        "sustainable_mobility"
+    ],
+    "total_scenarios": 1632,
+    "scenario_method": "Potential-weighted heuristic simulation",
+    "intervention_summary": [
+        {
+            "intervention": "sustainable_mobility",
+            "wards": 272,
+            "average_potential": 0.26640622916119794,
+            "average_heat_reduction_C": 0.1622326106291563,
+            "average_heat_improvement_percent": 0.4662109010320964,
+            "average_emission_reduction": 0.07259924086157425,
+            "average_emission_improvement_percent": 21.31249833289584,
+            "average_combined_impact": 10.889354616963967
+        },
+        {
+            "intervention": "water_restoration",
+            "wards": 272,
+            "average_potential": 0.4034787327582609,
+            "average_heat_reduction_C": 0.49665474737000975,
+            "average_heat_improvement_percent": 1.4121755646539131,
+            "average_emission_reduction": 0.021858365389694573,
+            "average_emission_improvement_percent": 8.06957465516522,
+            "average_combined_impact": 4.740875109909566
+        },
+        {
+            "intervention": "green_cover",
+            "wards": 272,
+            "average_potential": 0.0671513540806354,
+            "average_heat_reduction_C": 0.09387901078288434,
+            "average_heat_improvement_percent": 0.26860541632254165,
+            "average_emission_reduction": 0.00653151185830811,
+            "average_emission_improvement_percent": 2.014540622419062,
+            "average_combined_impact": 1.1415730193708018
+        },
+        {
+            "intervention": "roadside_greening",
+            "wards": 272,
+            "average_potential": 0.07739765254284656,
+            "average_heat_reduction_C": 0.08121581773923975,
+            "average_heat_improvement_percent": 0.23219295762853967,
+            "average_emission_reduction": 0.004854813293099931,
+            "average_emission_improvement_percent": 1.9349413135711637,
+            "average_combined_impact": 1.0835671355998517
+        },
+        {
+            "intervention": "cool_roof",
+            "wards": 272,
+            "average_potential": 0.14595657678512627,
+            "average_heat_reduction_C": 0.2301561659572552,
+            "average_heat_improvement_percent": 0.6568045955330682,
+            "average_emission_reduction": 0.004274705833715717,
+            "average_emission_improvement_percent": 1.4595657678512628,
+            "average_combined_impact": 1.0581851816921655
+        },
+        {
+            "intervention": "urban_forest",
+            "wards": 272,
+            "average_potential": 0.016471458252484306,
+            "average_heat_reduction_C": 0.028683773285570015,
+            "average_heat_improvement_percent": 0.08235729126242154,
+            "average_emission_reduction": 0.0020175397502148595,
+            "average_emission_improvement_percent": 0.5765010388369508,
+            "average_combined_impact": 0.3294291650496861
+        }
+    ]
+}

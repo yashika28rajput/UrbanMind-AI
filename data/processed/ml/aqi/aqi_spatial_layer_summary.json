@@ -1,0 +1,17 @@
+{
+    "records": 31357,
+    "unique_locations": 45,
+    "unique_stations": 45,
+    "mean_actual_AQI": 31.256899856287497,
+    "mean_predicted_AQI": 31.282102100623835,
+    "minimum_predicted_AQI": 3.351483082582817,
+    "maximum_predicted_AQI": 392.44047242909664,
+    "crs": "EPSG:4326",
+    "category_distribution": {
+        "Good": 26677,
+        "Satisfactory": 3954,
+        "Moderate": 710,
+        "Poor": 15,
+        "Very Poor": 1
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "wards": 272,
+    "interventions": 6,
+    "total_scenarios": 1632,
+    "mean_impact_score": 0.15902849649668072,
+    "max_impact_score": 0.30565069308291276,
+    "min_impact_score": 0.07169477558878082,
+    "intervention_average_impact": {
+        "urban_forest": 0.24402093958938717,
+        "green_cover": 0.1848170785586579,
+        "roadside_greening": 0.17353604187066957,
+        "sustainable_mobility": 0.14186860812351684,
+        "cool_roof": 0.10768999826511136,
+        "water_restoration": 0.10223831257274141
+    }
+}

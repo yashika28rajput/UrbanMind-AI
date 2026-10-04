@@ -1,0 +1,14 @@
+{
+  "model_name": "Green Cover Estimator",
+  "target": "green_cover_percent",
+  "features": [
+    "trees",
+    "grass",
+    "flooded_vegetation",
+    "crops",
+    "shrub_and_scrub",
+    "vegetation",
+    "built"
+  ],
+  "unit": "%"
+}

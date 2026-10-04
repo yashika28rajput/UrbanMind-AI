@@ -1,0 +1,23 @@
+{
+    "total_wards": 272,
+    "recommended_decisions": 272,
+    "unique_interventions": 4,
+    "mean_decision_score": 0.25546339536338,
+    "mean_AQI": 31.169016402737444,
+    "mean_environmental_risk": 0.22998027824941467,
+    "mean_health_exposure": 17.60963689292509,
+    "mean_expected_heat_reduction_C": 0.4666986829211496,
+    "mean_expected_emission_reduction": 0.05627076337200841,
+    "total_population": 16368899,
+    "intervention_distribution": {
+        "water_restoration": 186,
+        "sustainable_mobility": 78,
+        "roadside_greening": 7,
+        "green_cover": 1
+    },
+    "priority_distribution": {
+        "Lower Priority": 254,
+        "Medium Priority": 15,
+        "High Priority": 3
+    }
+}

@@ -1,0 +1,43 @@
+# Environment / secrets
+.env
+*.env
+!.env.example
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Cache / runtime
+cache/
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs / temporary
+*.log
+*.tmp
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large UrbanMind generated/raw files
+data/raw/gis/delhi_buildings.geojson
+data/processed/gis/delhi_traffic_features.geojson
+data/raw/gis/delhi_road_network.geojson
+data/processed/satellite/delhi_satellite_indices.tif

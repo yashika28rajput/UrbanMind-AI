@@ -1,0 +1,20 @@
+{
+    "total_wards": 272,
+    "total_interventions": 6,
+    "total_scenarios": 1632,
+    "primary_intervention_distribution": {
+        "urban_forest": 271,
+        "sustainable_mobility": 1
+    },
+    "mean_decision_score": 0.25577444191607474,
+    "maximum_decision_score": 0.9367993966412627,
+    "minimum_decision_score": 0.010981092847877866,
+    "decision_metrics": {
+        "impact_score_weight": 0.4,
+        "environmental_benefit_weight": 0.2,
+        "health_benefit_weight": 0.2,
+        "population_benefit_weight": 0.1,
+        "emission_benefit_weight": 0.1
+    },
+    "output_file": "data/processed/decision\\delhi_ward_decision_ranking.csv"
+}

@@ -1,0 +1,741 @@
+location_id,station_name,sensor_id,parameter,units,display_name
+13,"Delhi Technological University, Delhi - CPCB",13866,no2,µg/m³,NO₂ mass
+13,"Delhi Technological University, Delhi - CPCB",13864,pm25,µg/m³,PM2.5
+13,"Delhi Technological University, Delhi - CPCB",24,o3,µg/m³,O₃ mass
+15,IGI Airport,26,pm10,µg/m³,PM10
+15,IGI Airport,27,co,µg/m³,CO mass
+15,IGI Airport,29,o3,µg/m³,O₃ mass
+15,IGI Airport,30,pm25,µg/m³,PM2.5
+15,IGI Airport,28,no2,µg/m³,NO₂ mass
+16,Civil Lines,31,pm10,µg/m³,PM10
+16,Civil Lines,32,no2,µg/m³,NO₂ mass
+16,Civil Lines,33,co,µg/m³,CO mass
+16,Civil Lines,34,pm25,µg/m³,PM2.5
+17,"R K Puram, Delhi - DPCC",12234785,o3,µg/m³,O₃ mass
+17,"R K Puram, Delhi - DPCC",12234787,pm25,µg/m³,PM2.5
+17,"R K Puram, Delhi - DPCC",12234784,no2,ppb,NO₂
+17,"R K Puram, Delhi - DPCC",12234786,pm10,µg/m³,PM10
+17,"R K Puram, Delhi - DPCC",12234782,co,ppb,CO
+17,"R K Puram, Delhi - DPCC",12234789,so2,ppb,SO₂
+17,"R K Puram, Delhi - DPCC",399,pm10,µg/m³,PM10
+17,"R K Puram, Delhi - DPCC",35,pm25,µg/m³,PM2.5
+17,"R K Puram, Delhi - DPCC",394,o3,µg/m³,O₃ mass
+17,"R K Puram, Delhi - DPCC",36,no2,µg/m³,NO₂ mass
+17,"R K Puram, Delhi - DPCC",392,co,µg/m³,CO mass
+17,"R K Puram, Delhi - DPCC",393,so2,µg/m³,SO₂ mass
+50,"Punjabi Bagh, Delhi - DPCC",12234798,so2,ppb,SO₂
+50,"Punjabi Bagh, Delhi - DPCC",12234796,pm25,µg/m³,PM2.5
+50,"Punjabi Bagh, Delhi - DPCC",12234794,o3,µg/m³,O₃ mass
+50,"Punjabi Bagh, Delhi - DPCC",12234793,no2,ppb,NO₂
+50,"Punjabi Bagh, Delhi - DPCC",12234791,co,ppb,CO
+50,"Punjabi Bagh, Delhi - DPCC",12234795,pm10,µg/m³,PM10
+50,"Punjabi Bagh, Delhi - DPCC",395,pm10,µg/m³,PM10
+50,"Punjabi Bagh, Delhi - DPCC",71,o3,µg/m³,O₃ mass
+50,"Punjabi Bagh, Delhi - DPCC",397,so2,µg/m³,SO₂ mass
+50,"Punjabi Bagh, Delhi - DPCC",400,no2,µg/m³,NO₂ mass
+50,"Punjabi Bagh, Delhi - DPCC",398,co,µg/m³,CO mass
+50,"Punjabi Bagh, Delhi - DPCC",396,pm25,µg/m³,PM2.5
+103,"Income Tax Office, Delhi - CPCB",169,co,µg/m³,CO mass
+103,"Income Tax Office, Delhi - CPCB",13861,pm25,µg/m³,PM2.5
+103,"Income Tax Office, Delhi - CPCB",13863,no2,µg/m³,NO₂ mass
+103,"Income Tax Office, Delhi - CPCB",13862,pm10,µg/m³,PM10
+103,"Income Tax Office, Delhi - CPCB",168,o3,µg/m³,O₃ mass
+235,"Anand Vihar, New Delhi - DPCC",12235608,o3,µg/m³,O₃ mass
+235,"Anand Vihar, New Delhi - DPCC",12235605,co,ppb,CO
+235,"Anand Vihar, New Delhi - DPCC",12235612,so2,ppb,SO₂
+235,"Anand Vihar, New Delhi - DPCC",12235607,no2,ppb,NO₂
+235,"Anand Vihar, New Delhi - DPCC",12235609,pm10,µg/m³,PM10
+235,"Anand Vihar, New Delhi - DPCC",12235610,pm25,µg/m³,PM2.5
+235,"Anand Vihar, New Delhi - DPCC",380,o3,µg/m³,O₃ mass
+235,"Anand Vihar, New Delhi - DPCC",383,so2,µg/m³,SO₂ mass
+235,"Anand Vihar, New Delhi - DPCC",382,no2,µg/m³,NO₂ mass
+235,"Anand Vihar, New Delhi - DPCC",381,pm10,µg/m³,PM10
+235,"Anand Vihar, New Delhi - DPCC",385,co,µg/m³,CO mass
+235,"Anand Vihar, New Delhi - DPCC",384,pm25,µg/m³,PM2.5
+236,"Mandir Marg, Delhi - DPCC",386,co,µg/m³,CO mass
+236,"Mandir Marg, Delhi - DPCC",391,pm10,µg/m³,PM10
+236,"Mandir Marg, Delhi - DPCC",387,so2,µg/m³,SO₂ mass
+236,"Mandir Marg, Delhi - DPCC",388,pm25,µg/m³,PM2.5
+236,"Mandir Marg, Delhi - DPCC",389,no2,µg/m³,NO₂ mass
+236,"Mandir Marg, Delhi - DPCC",390,o3,µg/m³,O₃ mass
+431,"IHBAS, Delhi - CPCB",13868,pm25,µg/m³,PM2.5
+431,"IHBAS, Delhi - CPCB",13867,so2,µg/m³,SO₂ mass
+431,"IHBAS, Delhi - CPCB",5361,co,µg/m³,CO mass
+431,"IHBAS, Delhi - CPCB",747,no2,µg/m³,NO₂ mass
+2503,"Shadipur, Delhi - CPCB",13860,pm25,µg/m³,PM2.5
+2503,"Shadipur, Delhi - CPCB",4852,no2,µg/m³,NO₂ mass
+2503,"Shadipur, Delhi - CPCB",4851,co,µg/m³,CO mass
+2503,"Shadipur, Delhi - CPCB",13859,so2,µg/m³,SO₂ mass
+2503,"Shadipur, Delhi - CPCB",4853,o3,µg/m³,O₃ mass
+2587,"Sector16A, Faridabad - HSPCB",5341,no2,µg/m³,NO₂ mass
+2587,"Sector16A, Faridabad - HSPCB",13900,pm25,µg/m³,PM2.5
+2587,"Sector16A, Faridabad - HSPCB",40563,pm10,µg/m³,PM10
+2587,"Sector16A, Faridabad - HSPCB",5347,co,µg/m³,CO mass
+2587,"Sector16A, Faridabad - HSPCB",13901,so2,µg/m³,SO₂ mass
+2587,"Sector16A, Faridabad - HSPCB",5344,o3,µg/m³,O₃ mass
+2597,US Diplomatic Post: New Delhi,5398,pm25,µg/m³,PM2.5
+5404,"Pusa, Delhi - IMD",12234697,co,ppb,CO
+5404,"Pusa, Delhi - IMD",12234701,pm10,µg/m³,PM10
+5404,"Pusa, Delhi - IMD",12234702,pm25,µg/m³,PM2.5
+5404,"Pusa, Delhi - IMD",12234699,no2,ppb,NO₂
+5404,"Pusa, Delhi - IMD",12234700,o3,µg/m³,O₃ mass
+5404,"Pusa, Delhi - IMD",14086,co,µg/m³,CO mass
+5404,"Pusa, Delhi - IMD",14087,pm25,µg/m³,PM2.5
+5404,"Pusa, Delhi - IMD",14084,no2,µg/m³,NO₂ mass
+5404,"Pusa, Delhi - IMD",14085,pm10,µg/m³,PM10
+5509,"Anand Vihar, Delhi - DPCC",14519,co,µg/m³,CO mass
+5509,"Anand Vihar, Delhi - DPCC",14522,pm10,µg/m³,PM10
+5509,"Anand Vihar, Delhi - DPCC",14523,no2,µg/m³,NO₂ mass
+5509,"Anand Vihar, Delhi - DPCC",14524,o3,µg/m³,O₃ mass
+5509,"Anand Vihar, Delhi - DPCC",14520,so2,µg/m³,SO₂ mass
+5509,"Anand Vihar, Delhi - DPCC",14521,pm25,µg/m³,PM2.5
+5540,"Punjabi Bagh, Delhi - DPCC",14614,o3,µg/m³,O₃ mass
+5540,"Punjabi Bagh, Delhi - DPCC",14615,so2,µg/m³,SO₂ mass
+5540,"Punjabi Bagh, Delhi - DPCC",14617,pm25,µg/m³,PM2.5
+5540,"Punjabi Bagh, Delhi - DPCC",14616,co,µg/m³,CO mass
+5540,"Punjabi Bagh, Delhi - DPCC",14612,pm10,µg/m³,PM10
+5540,"Punjabi Bagh, Delhi - DPCC",14613,no2,µg/m³,NO₂ mass
+5541,"Burari Crossing, New Delhi - IMD",14936,no2,µg/m³,NO₂ mass
+5541,"Burari Crossing, New Delhi - IMD",14931,o3,µg/m³,O₃ mass
+5541,"Burari Crossing, New Delhi - IMD",14912,pm25,µg/m³,PM2.5
+5541,"Burari Crossing, New Delhi - IMD",14620,pm10,µg/m³,PM10
+5541,"Burari Crossing, New Delhi - IMD",14958,co,µg/m³,CO mass
+5541,"Burari Crossing, New Delhi - IMD",12234683,pm10,µg/m³,PM10
+5541,"Burari Crossing, New Delhi - IMD",12234681,no2,ppb,NO₂
+5541,"Burari Crossing, New Delhi - IMD",12234684,pm25,µg/m³,PM2.5
+5541,"Burari Crossing, New Delhi - IMD",12234679,co,ppb,CO
+5541,"Burari Crossing, New Delhi - IMD",12234682,o3,µg/m³,O₃ mass
+5570,"Aya Nagar, New Delhi - IMD",12234707,pm10,µg/m³,PM10
+5570,"Aya Nagar, New Delhi - IMD",12234708,pm25,µg/m³,PM2.5
+5570,"Aya Nagar, New Delhi - IMD",12234705,no2,ppb,NO₂
+5570,"Aya Nagar, New Delhi - IMD",12234706,o3,µg/m³,O₃ mass
+5570,"Aya Nagar, New Delhi - IMD",12234703,co,ppb,CO
+5570,"Aya Nagar, New Delhi - IMD",14717,pm25,µg/m³,PM2.5
+5570,"Aya Nagar, New Delhi - IMD",15027,pm10,µg/m³,PM10
+5570,"Aya Nagar, New Delhi - IMD",15010,co,µg/m³,CO mass
+5570,"Aya Nagar, New Delhi - IMD",15021,o3,µg/m³,O₃ mass
+5570,"Aya Nagar, New Delhi - IMD",15019,no2,µg/m³,NO₂ mass
+5581,"Pusa, New Delhi - IMD",14853,pm25,µg/m³,PM2.5
+5581,"Pusa, New Delhi - IMD",15266,co,µg/m³,CO mass
+5581,"Pusa, New Delhi - IMD",14800,no2,µg/m³,NO₂ mass
+5581,"Pusa, New Delhi - IMD",14752,o3,µg/m³,O₃ mass
+5581,"Pusa, New Delhi - IMD",14851,pm10,µg/m³,PM10
+5586,"Sirifort, Delhi - CPCB",12234768,pm10,µg/m³,PM10
+5586,"Sirifort, Delhi - CPCB",12234766,no2,ppb,NO₂
+5586,"Sirifort, Delhi - CPCB",12234767,o3,µg/m³,O₃ mass
+5586,"Sirifort, Delhi - CPCB",12234769,pm25,µg/m³,PM2.5
+5586,"Sirifort, Delhi - CPCB",12234764,co,ppb,CO
+5586,"Sirifort, Delhi - CPCB",12234771,so2,ppb,SO₂
+5598,"Sector - 125, Noida, UP - UPPCB",12235186,pm10,µg/m³,PM10
+5598,"Sector - 125, Noida, UP - UPPCB",12235184,no2,ppb,NO₂
+5598,"Sector - 125, Noida, UP - UPPCB",12235182,co,ppb,CO
+5598,"Sector - 125, Noida, UP - UPPCB",12235189,so2,ppb,SO₂
+5598,"Sector - 125, Noida, UP - UPPCB",12235187,pm25,µg/m³,PM2.5
+5598,"Sector - 125, Noida, UP - UPPCB",12235185,o3,µg/m³,O₃ mass
+5610,"North Campus, DU, Delhi - IMD",12234687,no2,ppb,NO₂
+5610,"North Campus, DU, Delhi - IMD",12234689,pm10,µg/m³,PM10
+5610,"North Campus, DU, Delhi - IMD",12234685,co,ppb,CO
+5610,"North Campus, DU, Delhi - IMD",12234688,o3,µg/m³,O₃ mass
+5610,"North Campus, DU, Delhi - IMD",12234690,pm25,µg/m³,PM2.5
+5610,"North Campus, DU, Delhi - IMD",14902,no2,µg/m³,NO₂ mass
+5610,"North Campus, DU, Delhi - IMD",14886,pm10,µg/m³,PM10
+5610,"North Campus, DU, Delhi - IMD",2007703,o3,ppm,O₃
+5610,"North Campus, DU, Delhi - IMD",14860,pm25,µg/m³,PM2.5
+5610,"North Campus, DU, Delhi - IMD",14909,co,µg/m³,CO mass
+5610,"North Campus, DU, Delhi - IMD",14889,o3,µg/m³,O₃ mass
+5613,"ITO, New Delhi - CPCB",14866,no2,µg/m³,NO₂ mass
+5613,"ITO, New Delhi - CPCB",14869,pm10,µg/m³,PM10
+5613,"ITO, New Delhi - CPCB",14878,pm25,µg/m³,PM2.5
+5613,"ITO, New Delhi - CPCB",17785,o3,µg/m³,O₃ mass
+5613,"ITO, New Delhi - CPCB",17781,so2,µg/m³,SO₂ mass
+5613,"ITO, New Delhi - CPCB",17782,co,µg/m³,CO mass
+5613,"ITO, New Delhi - CPCB",12234753,pm25,µg/m³,PM2.5
+5613,"ITO, New Delhi - CPCB",12234748,co,ppb,CO
+5613,"ITO, New Delhi - CPCB",12234751,o3,µg/m³,O₃ mass
+5613,"ITO, New Delhi - CPCB",12234752,pm10,µg/m³,PM10
+5613,"ITO, New Delhi - CPCB",12234750,no2,ppb,NO₂
+5613,"ITO, New Delhi - CPCB",12234754,so2,ppb,SO₂
+5616,"Sector - 62, Noida, UP - IMD",12234719,pm10,µg/m³,PM10
+5616,"Sector - 62, Noida, UP - IMD",12234718,o3,µg/m³,O₃ mass
+5616,"Sector - 62, Noida, UP - IMD",12234717,no2,ppb,NO₂
+5616,"Sector - 62, Noida, UP - IMD",12234715,co,ppb,CO
+5616,"Sector - 62, Noida, UP - IMD",12234720,pm25,µg/m³,PM2.5
+5617,"Sector- 16A, Faridabad - HSPCB",14930,pm25,µg/m³,PM2.5
+5617,"Sector- 16A, Faridabad - HSPCB",15107,so2,µg/m³,SO₂ mass
+5617,"Sector- 16A, Faridabad - HSPCB",15229,o3,µg/m³,O₃ mass
+5617,"Sector- 16A, Faridabad - HSPCB",17547,pm10,µg/m³,PM10
+5617,"Sector- 16A, Faridabad - HSPCB",17865,co,µg/m³,CO mass
+5617,"Sector- 16A, Faridabad - HSPCB",14887,no2,µg/m³,NO₂ mass
+5622,"NSIT Dwarka, Delhi - CPCB",12234742,o3,µg/m³,O₃ mass
+5622,"NSIT Dwarka, Delhi - CPCB",12234743,pm10,µg/m³,PM10
+5622,"NSIT Dwarka, Delhi - CPCB",12234741,no2,ppb,NO₂
+5622,"NSIT Dwarka, Delhi - CPCB",12234744,pm25,µg/m³,PM2.5
+5622,"NSIT Dwarka, Delhi - CPCB",12234746,so2,ppb,SO₂
+5622,"NSIT Dwarka, Delhi - CPCB",12234739,co,ppb,CO
+5622,"NSIT Dwarka, Delhi - CPCB",14923,so2,µg/m³,SO₂ mass
+5622,"NSIT Dwarka, Delhi - CPCB",14922,pm25,µg/m³,PM2.5
+5622,"NSIT Dwarka, Delhi - CPCB",14920,o3,µg/m³,O₃ mass
+5622,"NSIT Dwarka, Delhi - CPCB",14916,co,µg/m³,CO mass
+5622,"NSIT Dwarka, Delhi - CPCB",14919,no2,µg/m³,NO₂ mass
+5622,"NSIT Dwarka, Delhi - CPCB",34957,pm10,µg/m³,PM10
+5626,"DTU, New Delhi - CPCB",12234762,so2,ppb,SO₂
+5626,"DTU, New Delhi - CPCB",12234760,pm25,µg/m³,PM2.5
+5626,"DTU, New Delhi - CPCB",12234755,co,ppb,CO
+5626,"DTU, New Delhi - CPCB",12234759,pm10,µg/m³,PM10
+5626,"DTU, New Delhi - CPCB",12234757,no2,ppb,NO₂
+5626,"DTU, New Delhi - CPCB",12234758,o3,µg/m³,O₃ mass
+5626,"DTU, New Delhi - CPCB",14949,o3,µg/m³,O₃ mass
+5626,"DTU, New Delhi - CPCB",14985,pm25,µg/m³,PM2.5
+5626,"DTU, New Delhi - CPCB",14941,no2,µg/m³,NO₂ mass
+5626,"DTU, New Delhi - CPCB",14933,co,µg/m³,CO mass
+5626,"DTU, New Delhi - CPCB",17766,so2,µg/m³,SO₂ mass
+5626,"DTU, New Delhi - CPCB",14974,pm10,µg/m³,PM10
+5627,"CRRI Mathura Road, New Delhi - IMD",12234675,no2,ppb,NO₂
+5627,"CRRI Mathura Road, New Delhi - IMD",12234677,pm10,µg/m³,PM10
+5627,"CRRI Mathura Road, New Delhi - IMD",12234678,pm25,µg/m³,PM2.5
+5627,"CRRI Mathura Road, New Delhi - IMD",12234676,o3,µg/m³,O₃ mass
+5627,"CRRI Mathura Road, New Delhi - IMD",12234673,co,ppb,CO
+5627,"CRRI Mathura Road, New Delhi - IMD",15063,o3,µg/m³,O₃ mass
+5627,"CRRI Mathura Road, New Delhi - IMD",15098,co,µg/m³,CO mass
+5627,"CRRI Mathura Road, New Delhi - IMD",14935,pm25,µg/m³,PM2.5
+5627,"CRRI Mathura Road, New Delhi - IMD",14946,pm10,µg/m³,PM10
+5627,"CRRI Mathura Road, New Delhi - IMD",15082,no2,µg/m³,NO₂ mass
+5630,"Shadipur, Delhi - CPCB",12234724,o3,µg/m³,O₃ mass
+5630,"Shadipur, Delhi - CPCB",12234723,no2,ppb,NO₂
+5630,"Shadipur, Delhi - CPCB",12234721,co,ppb,CO
+5630,"Shadipur, Delhi - CPCB",12234728,so2,ppb,SO₂
+5630,"Shadipur, Delhi - CPCB",12234726,pm25,µg/m³,PM2.5
+5630,"Shadipur, Delhi - CPCB",12234725,pm10,µg/m³,PM10
+5630,"Shadipur, Delhi - CPCB",15053,no2,µg/m³,NO₂ mass
+5630,"Shadipur, Delhi - CPCB",36210,pm10,µg/m³,PM10
+5630,"Shadipur, Delhi - CPCB",15119,co,µg/m³,CO mass
+5630,"Shadipur, Delhi - CPCB",14959,pm25,µg/m³,PM2.5
+5630,"Shadipur, Delhi - CPCB",15011,o3,µg/m³,O₃ mass
+5630,"Shadipur, Delhi - CPCB",14952,so2,µg/m³,SO₂ mass
+5634,"Lodhi Road, New Delhi - IMD",12234713,pm10,µg/m³,PM10
+5634,"Lodhi Road, New Delhi - IMD",12234711,no2,ppb,NO₂
+5634,"Lodhi Road, New Delhi - IMD",12234712,o3,µg/m³,O₃ mass
+5634,"Lodhi Road, New Delhi - IMD",12234709,co,ppb,CO
+5634,"Lodhi Road, New Delhi - IMD",12234714,pm25,µg/m³,PM2.5
+5634,"Lodhi Road, New Delhi - IMD",14984,pm25,µg/m³,PM2.5
+5634,"Lodhi Road, New Delhi - IMD",14980,no2,µg/m³,NO₂ mass
+5634,"Lodhi Road, New Delhi - IMD",14981,o3,µg/m³,O₃ mass
+5634,"Lodhi Road, New Delhi - IMD",14983,pm10,µg/m³,PM10
+5634,"Lodhi Road, New Delhi - IMD",14978,co,µg/m³,CO mass
+5639,"R K Puram, New Delhi - DPCC",15008,co,µg/m³,CO mass
+5639,"R K Puram, New Delhi - DPCC",15059,pm10,µg/m³,PM10
+5639,"R K Puram, New Delhi - DPCC",15071,pm25,µg/m³,PM2.5
+5639,"R K Puram, New Delhi - DPCC",15092,so2,µg/m³,SO₂ mass
+5639,"R K Puram, New Delhi - DPCC",15042,o3,µg/m³,O₃ mass
+5639,"R K Puram, New Delhi - DPCC",15030,no2,µg/m³,NO₂ mass
+5641,"Mandir Marg, New Delhi - DPCC",15028,co,µg/m³,CO mass
+5641,"Mandir Marg, New Delhi - DPCC",15023,o3,µg/m³,O₃ mass
+5641,"Mandir Marg, New Delhi - DPCC",15022,pm10,µg/m³,PM10
+5641,"Mandir Marg, New Delhi - DPCC",15025,no2,µg/m³,NO₂ mass
+5641,"Mandir Marg, New Delhi - DPCC",15014,pm25,µg/m³,PM2.5
+5641,"Mandir Marg, New Delhi - DPCC",15013,so2,µg/m³,SO₂ mass
+5650,"IGI Airport (T3), Delhi - IMD",12234691,co,ppb,CO
+5650,"IGI Airport (T3), Delhi - IMD",12234695,pm10,µg/m³,PM10
+5650,"IGI Airport (T3), Delhi - IMD",12234696,pm25,µg/m³,PM2.5
+5650,"IGI Airport (T3), Delhi - IMD",12234694,o3,µg/m³,O₃ mass
+5650,"IGI Airport (T3), Delhi - IMD",12234693,no2,ppb,NO₂
+5665,"Vasundhara, Ghaziabad - UPPCB",15236,no2,µg/m³,NO₂ mass
+5665,"Vasundhara, Ghaziabad - UPPCB",15234,co,µg/m³,CO mass
+5665,"Vasundhara, Ghaziabad - UPPCB",15240,so2,µg/m³,SO₂ mass
+5665,"Vasundhara, Ghaziabad - UPPCB",15238,pm10,µg/m³,PM10
+5665,"Vasundhara, Ghaziabad - UPPCB",15237,o3,µg/m³,O₃ mass
+5665,"Vasundhara, Ghaziabad - UPPCB",15239,pm25,µg/m³,PM2.5
+5665,"Vasundhara, Ghaziabad - UPPCB",12235160,pm25,µg/m³,PM2.5
+5665,"Vasundhara, Ghaziabad - UPPCB",12235155,co,ppb,CO
+5665,"Vasundhara, Ghaziabad - UPPCB",12235159,pm10,µg/m³,PM10
+5665,"Vasundhara, Ghaziabad - UPPCB",12235162,so2,ppb,SO₂
+5665,"Vasundhara, Ghaziabad - UPPCB",12235157,no2,ppb,NO₂
+5665,"Vasundhara, Ghaziabad - UPPCB",12235158,o3,µg/m³,O₃ mass
+5742,"Patparganj, Delhi - DPCC",15500,o3,µg/m³,O₃ mass
+5742,"Patparganj, Delhi - DPCC",15628,pm10,µg/m³,PM10
+5742,"Patparganj, Delhi - DPCC",15498,no2,µg/m³,NO₂ mass
+5742,"Patparganj, Delhi - DPCC",15629,pm25,µg/m³,PM2.5
+5742,"Patparganj, Delhi - DPCC",15499,so2,µg/m³,SO₂ mass
+5743,"Rohini, Delhi - DPCC",15503,co,µg/m³,CO mass
+5743,"Rohini, Delhi - DPCC",15508,no2,µg/m³,NO₂ mass
+5743,"Rohini, Delhi - DPCC",15506,o3,µg/m³,O₃ mass
+5743,"Rohini, Delhi - DPCC",15504,so2,µg/m³,SO₂ mass
+5743,"Rohini, Delhi - DPCC",15622,pm10,µg/m³,PM10
+5743,"Rohini, Delhi - DPCC",15618,pm25,µg/m³,PM2.5
+5744,"Dr. Karni Singh Shooting Range, Delhi - DPCC",15588,pm10,µg/m³,PM10
+5744,"Dr. Karni Singh Shooting Range, Delhi - DPCC",15507,o3,µg/m³,O₃ mass
+5744,"Dr. Karni Singh Shooting Range, Delhi - DPCC",15589,pm25,µg/m³,PM2.5
+5744,"Dr. Karni Singh Shooting Range, Delhi - DPCC",15505,no2,µg/m³,NO₂ mass
+5744,"Dr. Karni Singh Shooting Range, Delhi - DPCC",15510,co,µg/m³,CO mass
+5744,"Dr. Karni Singh Shooting Range, Delhi - DPCC",15509,so2,µg/m³,SO₂ mass
+5753,"Vivek Vihar, Delhi - DPCC",15546,so2,µg/m³,SO₂ mass
+5753,"Vivek Vihar, Delhi - DPCC",15543,o3,µg/m³,O₃ mass
+5753,"Vivek Vihar, Delhi - DPCC",15545,co,µg/m³,CO mass
+5753,"Vivek Vihar, Delhi - DPCC",15604,pm25,µg/m³,PM2.5
+5753,"Vivek Vihar, Delhi - DPCC",15544,no2,µg/m³,NO₂ mass
+5753,"Vivek Vihar, Delhi - DPCC",15615,pm10,µg/m³,PM10
+5754,"Jawaharlal Nehru Stadium, Delhi - DPCC",15620,pm25,µg/m³,PM2.5
+5754,"Jawaharlal Nehru Stadium, Delhi - DPCC",15550,o3,µg/m³,O₃ mass
+5754,"Jawaharlal Nehru Stadium, Delhi - DPCC",15548,co,µg/m³,CO mass
+5754,"Jawaharlal Nehru Stadium, Delhi - DPCC",15619,pm10,µg/m³,PM10
+5754,"Jawaharlal Nehru Stadium, Delhi - DPCC",15547,no2,µg/m³,NO₂ mass
+5754,"Jawaharlal Nehru Stadium, Delhi - DPCC",15552,so2,µg/m³,SO₂ mass
+5755,"Major Dhyan Chand National Stadium, Delhi - DPCC",15586,o3,µg/m³,O₃ mass
+5755,"Major Dhyan Chand National Stadium, Delhi - DPCC",15574,no2,µg/m³,NO₂ mass
+5755,"Major Dhyan Chand National Stadium, Delhi - DPCC",15551,pm25,µg/m³,PM2.5
+5755,"Major Dhyan Chand National Stadium, Delhi - DPCC",15582,co,µg/m³,CO mass
+5755,"Major Dhyan Chand National Stadium, Delhi - DPCC",15549,pm10,µg/m³,PM10
+5755,"Major Dhyan Chand National Stadium, Delhi - DPCC",15587,so2,µg/m³,SO₂ mass
+5759,"Sonia Vihar, Delhi - DPCC",15567,no2,µg/m³,NO₂ mass
+5759,"Sonia Vihar, Delhi - DPCC",15566,o3,µg/m³,O₃ mass
+5759,"Sonia Vihar, Delhi - DPCC",15595,pm25,µg/m³,PM2.5
+5759,"Sonia Vihar, Delhi - DPCC",15565,so2,µg/m³,SO₂ mass
+5759,"Sonia Vihar, Delhi - DPCC",15568,co,µg/m³,CO mass
+5759,"Sonia Vihar, Delhi - DPCC",15591,pm10,µg/m³,PM10
+5761,"Jahangirpuri, Delhi - DPCC",15578,co,µg/m³,CO mass
+5761,"Jahangirpuri, Delhi - DPCC",15577,o3,µg/m³,O₃ mass
+5761,"Jahangirpuri, Delhi - DPCC",15621,pm25,µg/m³,PM2.5
+5761,"Jahangirpuri, Delhi - DPCC",15585,so2,µg/m³,SO₂ mass
+5761,"Jahangirpuri, Delhi - DPCC",15623,pm10,µg/m³,PM10
+5761,"Jahangirpuri, Delhi - DPCC",15572,no2,µg/m³,NO₂ mass
+5762,"Ashok Vihar, Delhi - DPCC",15605,pm10,µg/m³,PM10
+5762,"Ashok Vihar, Delhi - DPCC",15573,o3,µg/m³,O₃ mass
+5762,"Ashok Vihar, Delhi - DPCC",15583,co,µg/m³,CO mass
+5762,"Ashok Vihar, Delhi - DPCC",15602,pm25,µg/m³,PM2.5
+5762,"Ashok Vihar, Delhi - DPCC",15579,so2,µg/m³,SO₂ mass
+5762,"Ashok Vihar, Delhi - DPCC",15584,no2,µg/m³,NO₂ mass
+5765,"Okhla Phase-2, Delhi - DPCC",15627,pm25,µg/m³,PM2.5
+5765,"Okhla Phase-2, Delhi - DPCC",15624,pm10,µg/m³,PM10
+5765,"Okhla Phase-2, Delhi - DPCC",15599,so2,µg/m³,SO₂ mass
+5765,"Okhla Phase-2, Delhi - DPCC",15597,co,µg/m³,CO mass
+5765,"Okhla Phase-2, Delhi - DPCC",15598,o3,µg/m³,O₃ mass
+5765,"Okhla Phase-2, Delhi - DPCC",15600,no2,µg/m³,NO₂ mass
+5766,"Nehru Nagar, Delhi - DPCC",15616,o3,µg/m³,O₃ mass
+5766,"Nehru Nagar, Delhi - DPCC",15607,co,µg/m³,CO mass
+5766,"Nehru Nagar, Delhi - DPCC",15608,so2,µg/m³,SO₂ mass
+5766,"Nehru Nagar, Delhi - DPCC",15612,no2,µg/m³,NO₂ mass
+5766,"Nehru Nagar, Delhi - DPCC",15625,pm10,µg/m³,PM10
+5766,"Nehru Nagar, Delhi - DPCC",15626,pm25,µg/m³,PM2.5
+6356,"Pusa, Delhi - DPCC",12235316,co,ppb,CO
+6356,"Pusa, Delhi - DPCC",12235320,pm10,µg/m³,PM10
+6356,"Pusa, Delhi - DPCC",12235318,no2,ppb,NO₂
+6356,"Pusa, Delhi - DPCC",12235323,so2,ppb,SO₂
+6356,"Pusa, Delhi - DPCC",12235321,pm25,µg/m³,PM2.5
+6356,"Pusa, Delhi - DPCC",12235319,o3,µg/m³,O₃ mass
+6357,"Punjabi Bagh, Delhi - DPCC",17778,so2,µg/m³,SO₂ mass
+6357,"Punjabi Bagh, Delhi - DPCC",17769,co,µg/m³,CO mass
+6357,"Punjabi Bagh, Delhi - DPCC",17771,no2,µg/m³,NO₂ mass
+6357,"Punjabi Bagh, Delhi - DPCC",17768,pm10,µg/m³,PM10
+6357,"Punjabi Bagh, Delhi - DPCC",17776,pm25,µg/m³,PM2.5
+6357,"Punjabi Bagh, Delhi - DPCC",17774,o3,µg/m³,O₃ mass
+6358,"Mandir Marg, New Delhi - DPCC",12234777,pm10,µg/m³,PM10
+6358,"Mandir Marg, New Delhi - DPCC",12234776,o3,µg/m³,O₃ mass
+6358,"Mandir Marg, New Delhi - DPCC",12234780,so2,ppb,SO₂
+6358,"Mandir Marg, New Delhi - DPCC",12234778,pm25,µg/m³,PM2.5
+6358,"Mandir Marg, New Delhi - DPCC",12234775,no2,ppb,NO₂
+6358,"Mandir Marg, New Delhi - DPCC",12234773,co,ppb,CO
+6358,"Mandir Marg, New Delhi - DPCC",17772,co,µg/m³,CO mass
+6358,"Mandir Marg, New Delhi - DPCC",17777,o3,µg/m³,O₃ mass
+6358,"Mandir Marg, New Delhi - DPCC",17770,pm25,µg/m³,PM2.5
+6358,"Mandir Marg, New Delhi - DPCC",17773,no2,µg/m³,NO₂ mass
+6358,"Mandir Marg, New Delhi - DPCC",17775,pm10,µg/m³,PM10
+6358,"Mandir Marg, New Delhi - DPCC",17779,so2,µg/m³,SO₂ mass
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",12234733,o3,µg/m³,O₃ mass
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",12234730,co,ppb,CO
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",12234732,no2,ppb,NO₂
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",12234735,pm25,µg/m³,PM2.5
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",12234734,pm10,µg/m³,PM10
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",12234737,so2,ppb,SO₂
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",36050,pm10,µg/m³,PM10
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",17792,co,µg/m³,CO mass
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",17790,pm25,µg/m³,PM2.5
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",17791,no2,µg/m³,NO₂ mass
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",17780,so2,µg/m³,SO₂ mass
+6359,"IHBAS, Dilshad Garden,New Delhi - CPCB",36058,o3,µg/m³,O₃ mass
+6924,"Indirapuram, Ghaziabad - UPPCB",12235779,pm25,µg/m³,PM2.5
+6924,"Indirapuram, Ghaziabad - UPPCB",12235776,no2,ppb,NO₂
+6924,"Indirapuram, Ghaziabad - UPPCB",12235778,pm10,µg/m³,PM10
+6924,"Indirapuram, Ghaziabad - UPPCB",12235781,so2,ppb,SO₂
+6924,"Indirapuram, Ghaziabad - UPPCB",12235777,o3,µg/m³,O₃ mass
+6924,"Indirapuram, Ghaziabad - UPPCB",12235774,co,ppb,CO
+6924,"Indirapuram, Ghaziabad - UPPCB",19884,pm25,µg/m³,PM2.5
+6924,"Indirapuram, Ghaziabad - UPPCB",19883,o3,µg/m³,O₃ mass
+6924,"Indirapuram, Ghaziabad - UPPCB",19886,pm10,µg/m³,PM10
+6924,"Indirapuram, Ghaziabad - UPPCB",19885,no2,µg/m³,NO₂ mass
+6924,"Indirapuram, Ghaziabad - UPPCB",19887,so2,µg/m³,SO₂ mass
+6924,"Indirapuram, Ghaziabad - UPPCB",19888,co,µg/m³,CO mass
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",12235047,pm25,µg/m³,PM2.5
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",12235042,co,ppb,CO
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",12235049,so2,ppb,SO₂
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",12235045,o3,µg/m³,O₃ mass
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",12235046,pm10,µg/m³,PM10
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",12235044,no2,ppb,NO₂
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",19899,so2,µg/m³,SO₂ mass
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",19901,co,µg/m³,CO mass
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",19900,pm25,µg/m³,PM2.5
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",19902,no2,µg/m³,NO₂ mass
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",19904,pm10,µg/m³,PM10
+6929,"Major Dhyan Chand National Stadium, Delhi - DPCC",19903,o3,µg/m³,O₃ mass
+6931,"Dwarka-Sector 8, Delhi - DPCC ",12235022,so2,ppb,SO₂
+6931,"Dwarka-Sector 8, Delhi - DPCC ",12235015,co,ppb,CO
+6931,"Dwarka-Sector 8, Delhi - DPCC ",12235017,no2,ppb,NO₂
+6931,"Dwarka-Sector 8, Delhi - DPCC ",12235019,pm10,µg/m³,PM10
+6931,"Dwarka-Sector 8, Delhi - DPCC ",12235018,o3,µg/m³,O₃ mass
+6931,"Dwarka-Sector 8, Delhi - DPCC ",12235020,pm25,µg/m³,PM2.5
+6931,"Dwarka-Sector 8, Delhi - DPCC ",20147,so2,µg/m³,SO₂ mass
+6931,"Dwarka-Sector 8, Delhi - DPCC ",19954,o3,µg/m³,O₃ mass
+6931,"Dwarka-Sector 8, Delhi - DPCC ",19956,no2,µg/m³,NO₂ mass
+6931,"Dwarka-Sector 8, Delhi - DPCC ",19957,co,µg/m³,CO mass
+6931,"Dwarka-Sector 8, Delhi - DPCC ",20150,pm25,µg/m³,PM2.5
+6931,"Dwarka-Sector 8, Delhi - DPCC ",19906,pm10,µg/m³,PM10
+6932,"Alipur, Delhi - DPCC",12235698,pm25,µg/m³,PM2.5
+6932,"Alipur, Delhi - DPCC",12235697,pm10,µg/m³,PM10
+6932,"Alipur, Delhi - DPCC",12235693,co,ppb,CO
+6932,"Alipur, Delhi - DPCC",12235700,so2,ppb,SO₂
+6932,"Alipur, Delhi - DPCC",12235695,no2,ppb,NO₂
+6932,"Alipur, Delhi - DPCC",12235696,o3,µg/m³,O₃ mass
+6932,"Alipur, Delhi - DPCC",19935,pm25,µg/m³,PM2.5
+6932,"Alipur, Delhi - DPCC",19948,no2,µg/m³,NO₂ mass
+6932,"Alipur, Delhi - DPCC",19939,co,µg/m³,CO mass
+6932,"Alipur, Delhi - DPCC",19912,so2,µg/m³,SO₂ mass
+6932,"Alipur, Delhi - DPCC",19950,o3,µg/m³,O₃ mass
+6932,"Alipur, Delhi - DPCC",19936,pm10,µg/m³,PM10
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",12235006,co,ppb,CO
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",12235010,pm10,µg/m³,PM10
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",12235011,pm25,µg/m³,PM2.5
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",12235009,o3,µg/m³,O₃ mass
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",12235008,no2,ppb,NO₂
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",12235013,so2,ppb,SO₂
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",19925,co,µg/m³,CO mass
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",19919,pm25,µg/m³,PM2.5
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",19943,so2,µg/m³,SO₂ mass
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",19941,pm10,µg/m³,PM10
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",19930,no2,µg/m³,NO₂ mass
+6934,"Dr. Karni Singh Shooting Range, Delhi - DPCC",19917,o3,µg/m³,O₃ mass
+6938,"Vivek Vihar, Delhi - DPCC",12235128,co,ppb,CO
+6938,"Vivek Vihar, Delhi - DPCC",12235135,so2,ppb,SO₂
+6938,"Vivek Vihar, Delhi - DPCC",12235133,pm25,µg/m³,PM2.5
+6938,"Vivek Vihar, Delhi - DPCC",12235132,pm10,µg/m³,PM10
+6938,"Vivek Vihar, Delhi - DPCC",12235131,o3,µg/m³,O₃ mass
+6938,"Vivek Vihar, Delhi - DPCC",12235130,no2,ppb,NO₂
+6938,"Vivek Vihar, Delhi - DPCC",19932,o3,µg/m³,O₃ mass
+6938,"Vivek Vihar, Delhi - DPCC",19938,so2,µg/m³,SO₂ mass
+6938,"Vivek Vihar, Delhi - DPCC",19933,pm10,µg/m³,PM10
+6938,"Vivek Vihar, Delhi - DPCC",19934,pm25,µg/m³,PM2.5
+6938,"Vivek Vihar, Delhi - DPCC",19926,co,µg/m³,CO mass
+6938,"Vivek Vihar, Delhi - DPCC",19929,no2,µg/m³,NO₂ mass
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",12235037,pm10,µg/m³,PM10
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",12235035,no2,ppb,NO₂
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",12235038,pm25,µg/m³,PM2.5
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",12235040,so2,ppb,SO₂
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",12235036,o3,µg/m³,O₃ mass
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",12235033,co,ppb,CO
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",20018,o3,µg/m³,O₃ mass
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",20019,pm10,µg/m³,PM10
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",20021,so2,µg/m³,SO₂ mass
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",20020,pm25,µg/m³,PM2.5
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",20015,co,µg/m³,CO mass
+6957,"Jawaharlal Nehru Stadium, Delhi - DPCC",20017,no2,µg/m³,NO₂ mass
+6960,"Patparganj, Delhi - DPCC",12235098,no2,ppb,NO₂
+6960,"Patparganj, Delhi - DPCC",12235096,co,ppb,CO
+6960,"Patparganj, Delhi - DPCC",12235100,pm10,µg/m³,PM10
+6960,"Patparganj, Delhi - DPCC",12235099,o3,µg/m³,O₃ mass
+6960,"Patparganj, Delhi - DPCC",12235103,so2,ppb,SO₂
+6960,"Patparganj, Delhi - DPCC",12235101,pm25,µg/m³,PM2.5
+6960,"Patparganj, Delhi - DPCC",20039,o3,µg/m³,O₃ mass
+6960,"Patparganj, Delhi - DPCC",20049,pm25,µg/m³,PM2.5
+6960,"Patparganj, Delhi - DPCC",20055,so2,µg/m³,SO₂ mass
+6960,"Patparganj, Delhi - DPCC",20037,no2,µg/m³,NO₂ mass
+6960,"Patparganj, Delhi - DPCC",20040,pm10,µg/m³,PM10
+6980,"Sector-1, Noida - UPPCB",12235948,no2,ppb,NO₂
+6980,"Sector-1, Noida - UPPCB",12235946,co,ppb,CO
+6980,"Sector-1, Noida - UPPCB",12235949,o3,µg/m³,O₃ mass
+6980,"Sector-1, Noida - UPPCB",12235950,pm10,µg/m³,PM10
+6980,"Sector-1, Noida - UPPCB",12235953,so2,ppb,SO₂
+6980,"Sector-1, Noida - UPPCB",12235951,pm25,µg/m³,PM2.5
+6980,"Sector-1, Noida - UPPCB",20187,no2,µg/m³,NO₂ mass
+6980,"Sector-1, Noida - UPPCB",20207,so2,µg/m³,SO₂ mass
+6980,"Sector-1, Noida - UPPCB",20186,co,µg/m³,CO mass
+6980,"Sector-1, Noida - UPPCB",20189,o3,µg/m³,O₃ mass
+6980,"Sector-1, Noida - UPPCB",20206,pm25,µg/m³,PM2.5
+6980,"Sector-1, Noida - UPPCB",20194,pm10,µg/m³,PM10
+6986,"Knowledge Park - V, Greater Noida - UPPCB",12235932,no2,ppb,NO₂
+6986,"Knowledge Park - V, Greater Noida - UPPCB",12235935,pm25,µg/m³,PM2.5
+6986,"Knowledge Park - V, Greater Noida - UPPCB",12235934,pm10,µg/m³,PM10
+6986,"Knowledge Park - V, Greater Noida - UPPCB",12235937,so2,ppb,SO₂
+6986,"Knowledge Park - V, Greater Noida - UPPCB",12235933,o3,µg/m³,O₃ mass
+6986,"Knowledge Park - V, Greater Noida - UPPCB",12235930,co,ppb,CO
+6986,"Knowledge Park - V, Greater Noida - UPPCB",20244,so2,µg/m³,SO₂ mass
+6986,"Knowledge Park - V, Greater Noida - UPPCB",20241,pm10,µg/m³,PM10
+6986,"Knowledge Park - V, Greater Noida - UPPCB",20237,o3,µg/m³,O₃ mass
+6986,"Knowledge Park - V, Greater Noida - UPPCB",20232,no2,µg/m³,NO₂ mass
+6986,"Knowledge Park - V, Greater Noida - UPPCB",20230,co,µg/m³,CO mass
+6986,"Knowledge Park - V, Greater Noida - UPPCB",20242,pm25,µg/m³,PM2.5
+6988,"Sector-116, Noida - UPPCB",12235939,co,ppb,CO
+6988,"Sector-116, Noida - UPPCB",12235944,so2,ppb,SO₂
+6988,"Sector-116, Noida - UPPCB",12235940,o3,µg/m³,O₃ mass
+6988,"Sector-116, Noida - UPPCB",12235942,pm25,µg/m³,PM2.5
+6988,"Sector-116, Noida - UPPCB",12235941,pm10,µg/m³,PM10
+6988,"Sector-116, Noida - UPPCB",12241383,no2,ppb,NO₂
+7005,"Loni, Ghaziabad - UPPCB",20292,o3,µg/m³,O₃ mass
+7005,"Loni, Ghaziabad - UPPCB",20295,co,µg/m³,CO mass
+7005,"Loni, Ghaziabad - UPPCB",20294,no2,µg/m³,NO₂ mass
+7005,"Loni, Ghaziabad - UPPCB",20290,pm25,µg/m³,PM2.5
+7005,"Loni, Ghaziabad - UPPCB",20293,pm10,µg/m³,PM10
+7005,"Loni, Ghaziabad - UPPCB",20291,so2,µg/m³,SO₂ mass
+7005,"Loni, Ghaziabad - UPPCB",12264381,o3,µg/m³,O₃ mass
+7005,"Loni, Ghaziabad - UPPCB",12235785,no2,ppb,NO₂
+7005,"Loni, Ghaziabad - UPPCB",12235787,pm25,µg/m³,PM2.5
+7005,"Loni, Ghaziabad - UPPCB",12235786,pm10,µg/m³,PM10
+7005,"Loni, Ghaziabad - UPPCB",12235783,co,ppb,CO
+7005,"Loni, Ghaziabad - UPPCB",12235789,so2,ppb,SO₂
+7044,"R K Puram, Delhi - DPCC",20409,no2,µg/m³,NO₂ mass
+7044,"R K Puram, Delhi - DPCC",20408,so2,µg/m³,SO₂ mass
+7044,"R K Puram, Delhi - DPCC",20406,o3,µg/m³,O₃ mass
+7044,"R K Puram, Delhi - DPCC",20411,pm25,µg/m³,PM2.5
+7044,"R K Puram, Delhi - DPCC",20410,co,µg/m³,CO mass
+7044,"R K Puram, Delhi - DPCC",20407,pm10,µg/m³,PM10
+7434,"East Arjun Nagar, Delhi - CPCB",21625,o3,µg/m³,O₃ mass
+7434,"East Arjun Nagar, Delhi - CPCB",21624,no2,µg/m³,NO₂ mass
+7434,"East Arjun Nagar, Delhi - CPCB",21623,so2,µg/m³,SO₂ mass
+8092,"East Arjun Nagar, Delhi - CPCB",23669,no2,µg/m³,NO₂ mass
+8092,"East Arjun Nagar, Delhi - CPCB",34750,so2,µg/m³,SO₂ mass
+8092,"East Arjun Nagar, Delhi - CPCB",23465,o3,µg/m³,O₃ mass
+8118,New Delhi,23534,pm25,µg/m³,PM2.5
+8235,"Jahangirpuri, Delhi - DPCC",12235028,pm10,µg/m³,PM10
+8235,"Jahangirpuri, Delhi - DPCC",12235027,o3,µg/m³,O₃ mass
+8235,"Jahangirpuri, Delhi - DPCC",12235024,co,ppb,CO
+8235,"Jahangirpuri, Delhi - DPCC",12235029,pm25,µg/m³,PM2.5
+8235,"Jahangirpuri, Delhi - DPCC",12235026,no2,ppb,NO₂
+8235,"Jahangirpuri, Delhi - DPCC",12235031,so2,ppb,SO₂
+8235,"Jahangirpuri, Delhi - DPCC",23998,so2,µg/m³,SO₂ mass
+8235,"Jahangirpuri, Delhi - DPCC",23997,pm25,µg/m³,PM2.5
+8235,"Jahangirpuri, Delhi - DPCC",23994,no2,µg/m³,NO₂ mass
+8235,"Jahangirpuri, Delhi - DPCC",23996,pm10,µg/m³,PM10
+8235,"Jahangirpuri, Delhi - DPCC",23995,o3,µg/m³,O₃ mass
+8235,"Jahangirpuri, Delhi - DPCC",23993,co,µg/m³,CO mass
+8239,"Okhla Phase-2, Delhi - DPCC",24008,no2,µg/m³,NO₂ mass
+8239,"Okhla Phase-2, Delhi - DPCC",24007,pm25,µg/m³,PM2.5
+8239,"Okhla Phase-2, Delhi - DPCC",24009,so2,µg/m³,SO₂ mass
+8239,"Okhla Phase-2, Delhi - DPCC",24011,pm10,µg/m³,PM10
+8239,"Okhla Phase-2, Delhi - DPCC",24010,co,µg/m³,CO mass
+8239,"Okhla Phase-2, Delhi - DPCC",24012,o3,µg/m³,O₃ mass
+8239,"Okhla Phase-2, Delhi - DPCC",12235073,pm10,µg/m³,PM10
+8239,"Okhla Phase-2, Delhi - DPCC",12235069,co,ppb,CO
+8239,"Okhla Phase-2, Delhi - DPCC",12235072,o3,µg/m³,O₃ mass
+8239,"Okhla Phase-2, Delhi - DPCC",12235071,no2,ppb,NO₂
+8239,"Okhla Phase-2, Delhi - DPCC",12235076,so2,ppb,SO₂
+8239,"Okhla Phase-2, Delhi - DPCC",12235074,pm25,µg/m³,PM2.5
+8365,"Nehru Nagar, Delhi - DPCC",12235085,so2,ppb,SO₂
+8365,"Nehru Nagar, Delhi - DPCC",12235081,o3,µg/m³,O₃ mass
+8365,"Nehru Nagar, Delhi - DPCC",12235083,pm25,µg/m³,PM2.5
+8365,"Nehru Nagar, Delhi - DPCC",12235082,pm10,µg/m³,PM10
+8365,"Nehru Nagar, Delhi - DPCC",12235078,co,ppb,CO
+8365,"Nehru Nagar, Delhi - DPCC",12235080,no2,ppb,NO₂
+8365,"Nehru Nagar, Delhi - DPCC",34799,co,µg/m³,CO mass
+8365,"Nehru Nagar, Delhi - DPCC",35010,pm25,µg/m³,PM2.5
+8365,"Nehru Nagar, Delhi - DPCC",35012,pm10,µg/m³,PM10
+8365,"Nehru Nagar, Delhi - DPCC",35009,so2,µg/m³,SO₂ mass
+8365,"Nehru Nagar, Delhi - DPCC",35017,o3,µg/m³,O₃ mass
+8365,"Nehru Nagar, Delhi - DPCC",24303,no2,µg/m³,NO₂ mass
+8472,"Bawana, Delhi - DPCC",12235294,pm25,µg/m³,PM2.5
+8472,"Bawana, Delhi - DPCC",12235293,pm10,µg/m³,PM10
+8472,"Bawana, Delhi - DPCC",12235296,so2,ppb,SO₂
+8472,"Bawana, Delhi - DPCC",12235291,no2,ppb,NO₂
+8472,"Bawana, Delhi - DPCC",12235292,o3,µg/m³,O₃ mass
+8472,"Bawana, Delhi - DPCC",12235289,co,ppb,CO
+8472,"Bawana, Delhi - DPCC",24602,pm10,µg/m³,PM10
+8472,"Bawana, Delhi - DPCC",36394,no2,µg/m³,NO₂ mass
+8472,"Bawana, Delhi - DPCC",36395,co,µg/m³,CO mass
+8472,"Bawana, Delhi - DPCC",36393,o3,µg/m³,O₃ mass
+8472,"Bawana, Delhi - DPCC",36391,pm25,µg/m³,PM2.5
+8475,"Sonia Vihar, Delhi - DPCC",12235109,pm10,µg/m³,PM10
+8475,"Sonia Vihar, Delhi - DPCC",12235107,no2,ppb,NO₂
+8475,"Sonia Vihar, Delhi - DPCC",12235110,pm25,µg/m³,PM2.5
+8475,"Sonia Vihar, Delhi - DPCC",12235108,o3,µg/m³,O₃ mass
+8475,"Sonia Vihar, Delhi - DPCC",12235105,co,ppb,CO
+8475,"Sonia Vihar, Delhi - DPCC",12235112,so2,ppb,SO₂
+8475,"Sonia Vihar, Delhi - DPCC",35049,pm10,µg/m³,PM10
+8475,"Sonia Vihar, Delhi - DPCC",24615,co,µg/m³,CO mass
+8475,"Sonia Vihar, Delhi - DPCC",35047,no2,µg/m³,NO₂ mass
+8475,"Sonia Vihar, Delhi - DPCC",35048,o3,µg/m³,O₃ mass
+8475,"Sonia Vihar, Delhi - DPCC",35051,so2,µg/m³,SO₂ mass
+8475,"Sonia Vihar, Delhi - DPCC",35050,pm25,µg/m³,PM2.5
+8915,"Wazirpur, Delhi - DPCC",34732,no2,µg/m³,NO₂ mass
+8915,"Wazirpur, Delhi - DPCC",34729,so2,µg/m³,SO₂ mass
+8915,"Wazirpur, Delhi - DPCC",26026,pm10,µg/m³,PM10
+8915,"Wazirpur, Delhi - DPCC",34728,co,µg/m³,CO mass
+8915,"Wazirpur, Delhi - DPCC",34731,pm25,µg/m³,PM2.5
+8915,"Wazirpur, Delhi - DPCC",34730,o3,µg/m³,O₃ mass
+8915,"Wazirpur, Delhi - DPCC",12235124,pm25,µg/m³,PM2.5
+8915,"Wazirpur, Delhi - DPCC",12235119,co,ppb,CO
+8915,"Wazirpur, Delhi - DPCC",12235122,o3,µg/m³,O₃ mass
+8915,"Wazirpur, Delhi - DPCC",12235121,no2,ppb,NO₂
+8915,"Wazirpur, Delhi - DPCC",12235123,pm10,µg/m³,PM10
+8915,"Wazirpur, Delhi - DPCC",12235126,so2,ppb,SO₂
+8917,"Ashok Vihar, Delhi - DPCC",12234997,co,ppb,CO
+8917,"Ashok Vihar, Delhi - DPCC",12235000,o3,µg/m³,O₃ mass
+8917,"Ashok Vihar, Delhi - DPCC",12234999,no2,ppb,NO₂
+8917,"Ashok Vihar, Delhi - DPCC",12235002,pm25,µg/m³,PM2.5
+8917,"Ashok Vihar, Delhi - DPCC",12235004,so2,ppb,SO₂
+8917,"Ashok Vihar, Delhi - DPCC",12235001,pm10,µg/m³,PM10
+8917,"Ashok Vihar, Delhi - DPCC",26032,pm25,µg/m³,PM2.5
+8917,"Ashok Vihar, Delhi - DPCC",34762,co,µg/m³,CO mass
+8917,"Ashok Vihar, Delhi - DPCC",34785,pm10,µg/m³,PM10
+8917,"Ashok Vihar, Delhi - DPCC",34768,no2,µg/m³,NO₂ mass
+8917,"Ashok Vihar, Delhi - DPCC",34786,so2,µg/m³,SO₂ mass
+8917,"Ashok Vihar, Delhi - DPCC",34782,o3,µg/m³,O₃ mass
+10484,"Sri Aurobindo Marg, Delhi - DPCC",12235314,so2,ppb,SO₂
+10484,"Sri Aurobindo Marg, Delhi - DPCC",12235312,pm25,µg/m³,PM2.5
+10484,"Sri Aurobindo Marg, Delhi - DPCC",12235307,co,ppb,CO
+10484,"Sri Aurobindo Marg, Delhi - DPCC",12235309,no2,ppb,NO₂
+10484,"Sri Aurobindo Marg, Delhi - DPCC",12235311,pm10,µg/m³,PM10
+10484,"Sri Aurobindo Marg, Delhi - DPCC",12235310,o3,µg/m³,O₃ mass
+10484,"Sri Aurobindo Marg, Delhi - DPCC",34757,o3,µg/m³,O₃ mass
+10484,"Sri Aurobindo Marg, Delhi - DPCC",34772,pm25,µg/m³,PM2.5
+10484,"Sri Aurobindo Marg, Delhi - DPCC",34758,no2,µg/m³,NO₂ mass
+10484,"Sri Aurobindo Marg, Delhi - DPCC",34761,co,µg/m³,CO mass
+10484,"Sri Aurobindo Marg, Delhi - DPCC",34759,so2,µg/m³,SO₂ mass
+10484,"Sri Aurobindo Marg, Delhi - DPCC",34781,pm10,µg/m³,PM10
+10486,"Mundka, Delhi - DPCC",12235300,no2,ppb,NO₂
+10486,"Mundka, Delhi - DPCC",12235302,pm10,µg/m³,PM10
+10486,"Mundka, Delhi - DPCC",12235305,so2,ppb,SO₂
+10486,"Mundka, Delhi - DPCC",12235298,co,ppb,CO
+10486,"Mundka, Delhi - DPCC",12235303,pm25,µg/m³,PM2.5
+10486,"Mundka, Delhi - DPCC",12235301,o3,µg/m³,O₃ mass
+10486,"Mundka, Delhi - DPCC",34766,pm10,µg/m³,PM10
+10486,"Mundka, Delhi - DPCC",34769,so2,µg/m³,SO₂ mass
+10486,"Mundka, Delhi - DPCC",34764,no2,µg/m³,NO₂ mass
+10486,"Mundka, Delhi - DPCC",34767,pm25,µg/m³,PM2.5
+10486,"Mundka, Delhi - DPCC",34765,o3,µg/m³,O₃ mass
+10486,"Mundka, Delhi - DPCC",34763,co,µg/m³,CO mass
+10487,"Anand Vihar, Delhi - DPCC",34780,pm10,µg/m³,PM10
+10487,"Anand Vihar, Delhi - DPCC",34783,o3,µg/m³,O₃ mass
+10487,"Anand Vihar, Delhi - DPCC",34784,no2,µg/m³,NO₂ mass
+10487,"Anand Vihar, Delhi - DPCC",34771,pm25,µg/m³,PM2.5
+10487,"Anand Vihar, Delhi - DPCC",34770,so2,µg/m³,SO₂ mass
+10487,"Anand Vihar, Delhi - DPCC",34787,co,µg/m³,CO mass
+10489,"ITO, Delhi - CPCB",35015,so2,µg/m³,SO₂ mass
+10489,"ITO, Delhi - CPCB",34793,pm10,µg/m³,PM10
+10489,"ITO, Delhi - CPCB",34823,co,µg/m³,CO mass
+10489,"ITO, Delhi - CPCB",34821,no2,µg/m³,NO₂ mass
+10489,"ITO, Delhi - CPCB",35016,pm25,µg/m³,PM2.5
+10489,"ITO, Delhi - CPCB",34816,o3,µg/m³,O₃ mass
+10820,"Sector 30, Faridabad - HSPCB",12236231,co,ppb,CO
+10820,"Sector 30, Faridabad - HSPCB",12236235,pm10,µg/m³,PM10
+10820,"Sector 30, Faridabad - HSPCB",12236238,so2,ppb,SO₂
+10820,"Sector 30, Faridabad - HSPCB",12236234,o3,µg/m³,O₃ mass
+10820,"Sector 30, Faridabad - HSPCB",12236233,no2,ppb,NO₂
+10820,"Sector 30, Faridabad - HSPCB",12236236,pm25,µg/m³,PM2.5
+10831,"Rohini, Delhi - DPCC",12235090,o3,µg/m³,O₃ mass
+10831,"Rohini, Delhi - DPCC",12235091,pm10,µg/m³,PM10
+10831,"Rohini, Delhi - DPCC",12235087,co,ppb,CO
+10831,"Rohini, Delhi - DPCC",12235089,no2,ppb,NO₂
+10831,"Rohini, Delhi - DPCC",12235092,pm25,µg/m³,PM2.5
+10831,"Rohini, Delhi - DPCC",12235094,so2,ppb,SO₂
+10831,"Rohini, Delhi - DPCC",36399,pm25,µg/m³,PM2.5
+10831,"Rohini, Delhi - DPCC",36382,pm10,µg/m³,PM10
+10831,"Rohini, Delhi - DPCC",36208,co,µg/m³,CO mass
+10831,"Rohini, Delhi - DPCC",36209,no2,µg/m³,NO₂ mass
+10831,"Rohini, Delhi - DPCC",36449,so2,µg/m³,SO₂ mass
+10831,"Rohini, Delhi - DPCC",36213,o3,µg/m³,O₃ mass
+10900,"Teri Gram, Gurugram - HSPCB",12236251,pm25,µg/m³,PM2.5
+10900,"Teri Gram, Gurugram - HSPCB",12236249,o3,µg/m³,O₃ mass
+10900,"Teri Gram, Gurugram - HSPCB",12236250,pm10,µg/m³,PM10
+10900,"Teri Gram, Gurugram - HSPCB",14516015,co,ppb,CO
+10900,"Teri Gram, Gurugram - HSPCB",14516016,so2,ppb,SO₂
+10900,"Teri Gram, Gurugram - HSPCB",14573420,no2,ppb,NO₂
+10900,"Teri Gram, Gurugram - HSPCB",36539,pm25,µg/m³,PM2.5
+10900,"Teri Gram, Gurugram - HSPCB",36540,so2,µg/m³,SO₂ mass
+10900,"Teri Gram, Gurugram - HSPCB",36535,no2,µg/m³,NO₂ mass
+10900,"Teri Gram, Gurugram - HSPCB",36538,pm10,µg/m³,PM10
+10900,"Teri Gram, Gurugram - HSPCB",36534,co,µg/m³,CO mass
+10900,"Teri Gram, Gurugram - HSPCB",36536,o3,µg/m³,O₃ mass
+10921,"NISE Gwal Pahari, Gurugram - IMD",12235707,pm25,µg/m³,PM2.5
+10921,"NISE Gwal Pahari, Gurugram - IMD",12235702,co,ppb,CO
+10921,"NISE Gwal Pahari, Gurugram - IMD",12235704,no2,ppb,NO₂
+10921,"NISE Gwal Pahari, Gurugram - IMD",12235705,o3,µg/m³,O₃ mass
+10921,"NISE Gwal Pahari, Gurugram - IMD",12235706,pm10,µg/m³,PM10
+10921,"NISE Gwal Pahari, Gurugram - IMD",36701,pm25,µg/m³,PM2.5
+10921,"NISE Gwal Pahari, Gurugram - IMD",36702,no2,µg/m³,NO₂ mass
+10921,"NISE Gwal Pahari, Gurugram - IMD",36703,pm10,µg/m³,PM10
+10921,"NISE Gwal Pahari, Gurugram - IMD",36700,co,µg/m³,CO mass
+11603,"Chandni Chowk, Delhi - IITM",12236360,pm10,µg/m³,PM10
+11603,"Chandni Chowk, Delhi - IITM",12236358,no2,ppb,NO₂
+11603,"Chandni Chowk, Delhi - IITM",12236363,so2,ppb,SO₂
+11603,"Chandni Chowk, Delhi - IITM",12236356,co,ppb,CO
+11603,"Chandni Chowk, Delhi - IITM",12236361,pm25,µg/m³,PM2.5
+11603,"Chandni Chowk, Delhi - IITM",12236359,o3,µg/m³,O₃ mass
+11603,"Chandni Chowk, Delhi - IITM",39415,o3,µg/m³,O₃ mass
+11603,"Chandni Chowk, Delhi - IITM",39410,pm25,µg/m³,PM2.5
+11603,"Chandni Chowk, Delhi - IITM",39412,no2,µg/m³,NO₂ mass
+11603,"Chandni Chowk, Delhi - IITM",39414,co,µg/m³,CO mass
+11603,"Chandni Chowk, Delhi - IITM",39411,pm10,µg/m³,PM10
+11603,"Chandni Chowk, Delhi - IITM",39413,so2,µg/m³,SO₂ mass
+11607,"Lodhi Road, Delhi - IITM",12236374,no2,ppb,NO₂
+11607,"Lodhi Road, Delhi - IITM",12236375,pm10,µg/m³,PM10
+11607,"Lodhi Road, Delhi - IITM",12236376,pm25,µg/m³,PM2.5
+11607,"Lodhi Road, Delhi - IITM",12236378,so2,ppb,SO₂
+11607,"Lodhi Road, Delhi - IITM",39437,co,µg/m³,CO mass
+11607,"Lodhi Road, Delhi - IITM",39436,so2,µg/m³,SO₂ mass
+11607,"Lodhi Road, Delhi - IITM",39434,pm10,µg/m³,PM10
+11607,"Lodhi Road, Delhi - IITM",39433,pm25,µg/m³,PM2.5
+11607,"Lodhi Road, Delhi - IITM",39435,no2,µg/m³,NO₂ mass
+11607,"Lodhi Road, Delhi - IITM",39438,o3,µg/m³,O₃ mass
+2860223,GK1 (Oberoi Terrace),9320367,pm25,µg/m³,PM2.5
+2860223,GK1 (Oberoi Terrace),9320368,pm10,µg/m³,PM10
+3409496,"New Moti Bagh, Delhi - MHUA",15646331,co,ppb,CO
+3409496,"New Moti Bagh, Delhi - MHUA",15646333,no2,ppb,NO₂
+3409496,"New Moti Bagh, Delhi - MHUA",15646335,pm25,µg/m³,PM2.5
+4663956,"Santushti Apartments, Vasant Kunj",13273790,pm25,µg/m³,PM2.5
+4712609,Air Check,15289075,pm25,µg/m³,PM2.5
+6105800,"Sector 1, Noida extension",14453757,pm25,µg/m³,PM2.5
+6119272,"Sector - 5, Vasundhara, Ghaziabad, Uttar Pradesh ",14551755,pm25,µg/m³,PM2.5
+6145551,Anand Lok,14745878,pm25,µg/m³,PM2.5
+6148686,"IIT Delhi, Delhi - IITM",14769473,pm10,µg/m³,PM10
+6148686,"IIT Delhi, Delhi - IITM",14769468,co,ppb,CO
+6148686,"IIT Delhi, Delhi - IITM",14769470,no2,ppb,NO₂
+6148686,"IIT Delhi, Delhi - IITM",14769472,o3,µg/m³,O₃ mass
+6148686,"IIT Delhi, Delhi - IITM",14769474,pm25,µg/m³,PM2.5
+6254594,"Talkatora Garden, Delhi - DPCC",15554202,co,ppb,CO
+6254594,"Talkatora Garden, Delhi - DPCC",15554204,no2,ppb,NO₂
+6254594,"Talkatora Garden, Delhi - DPCC",15554206,o3,µg/m³,O₃ mass
+6254594,"Talkatora Garden, Delhi - DPCC",15554207,pm10,µg/m³,PM10
+6254594,"Talkatora Garden, Delhi - DPCC",15554208,pm25,µg/m³,PM2.5
+6254594,"Talkatora Garden, Delhi - DPCC",15554210,so2,ppb,SO₂
+6254663,"JNU, Delhi - DPCC",15554698,co,ppb,CO
+6254663,"JNU, Delhi - DPCC",15554703,pm10,µg/m³,PM10
+6254663,"JNU, Delhi - DPCC",15554700,no2,ppb,NO₂
+6254663,"JNU, Delhi - DPCC",15554702,o3,µg/m³,O₃ mass
+6254663,"JNU, Delhi - DPCC",15554706,so2,ppb,SO₂
+6254663,"JNU, Delhi - DPCC",15554704,pm25,µg/m³,PM2.5
+6254665,"Commonwealth Sports Complex, Delhi - DPCC",15554722,co,ppb,CO
+6254665,"Commonwealth Sports Complex, Delhi - DPCC",15554724,no2,ppb,NO₂
+6254665,"Commonwealth Sports Complex, Delhi - DPCC",15554726,o3,µg/m³,O₃ mass
+6254665,"Commonwealth Sports Complex, Delhi - DPCC",15554727,pm10,µg/m³,PM10
+6254665,"Commonwealth Sports Complex, Delhi - DPCC",15554728,pm25,µg/m³,PM2.5
+6254665,"Commonwealth Sports Complex, Delhi - DPCC",15554730,so2,ppb,SO₂
+6254666,"IGNOU_Maidan Garhi, Delhi - DPCC",15554734,co,ppb,CO
+6254666,"IGNOU_Maidan Garhi, Delhi - DPCC",15554736,no2,ppb,NO₂
+6254666,"IGNOU_Maidan Garhi, Delhi - DPCC",15554738,o3,µg/m³,O₃ mass
+6254666,"IGNOU_Maidan Garhi, Delhi - DPCC",15554739,pm10,µg/m³,PM10
+6254666,"IGNOU_Maidan Garhi, Delhi - DPCC",15554740,pm25,µg/m³,PM2.5
+6254666,"IGNOU_Maidan Garhi, Delhi - DPCC",15554742,so2,ppb,SO₂
+6257818,"Cantonment Area, Delhi - DPCC",15578289,o3,µg/m³,O₃ mass
+6257818,"Cantonment Area, Delhi - DPCC",15578291,pm25,µg/m³,PM2.5
+6257818,"Cantonment Area, Delhi - DPCC",15578287,no2,ppb,NO₂
+6257818,"Cantonment Area, Delhi - DPCC",15578293,so2,ppb,SO₂
+6257818,"Cantonment Area, Delhi - DPCC",15578285,co,ppb,CO
+6257818,"Cantonment Area, Delhi - DPCC",15578290,pm10,µg/m³,PM10
+6299494,"Prashant Garden, Khora - UPPCB",15888912,co,ppb,CO
+6299494,"Prashant Garden, Khora - UPPCB",15888917,pm10,µg/m³,PM10
+6299494,"Prashant Garden, Khora - UPPCB",15888914,no2,ppb,NO₂
+6299494,"Prashant Garden, Khora - UPPCB",15888916,o3,µg/m³,O₃ mass
+6299494,"Prashant Garden, Khora - UPPCB",15888920,so2,ppb,SO₂
+6299494,"Prashant Garden, Khora - UPPCB",15888918,pm25,µg/m³,PM2.5
+6299678,"Ved Vihar-Loni, Ghaziabad - UPPCB",15890339,o3,µg/m³,O₃ mass
+6299678,"Ved Vihar-Loni, Ghaziabad - UPPCB",15890340,pm10,µg/m³,PM10
+6299678,"Ved Vihar-Loni, Ghaziabad - UPPCB",15890341,pm25,µg/m³,PM2.5
+6299678,"Ved Vihar-Loni, Ghaziabad - UPPCB",15890343,so2,ppb,SO₂
+6299678,"Ved Vihar-Loni, Ghaziabad - UPPCB",15890335,co,ppb,CO
+6299678,"Ved Vihar-Loni, Ghaziabad - UPPCB",15890337,no2,ppb,NO₂

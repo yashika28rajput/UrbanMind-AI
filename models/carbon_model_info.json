@@ -1,0 +1,11 @@
+{
+  "model_name": "Carbon Reduction Estimator",
+  "target": "CO2_reduction_tons",
+  "features": [
+    "green_cover_percent",
+    "emission_pressure_index",
+    "intervention_strength",
+    "urban_intervention_potential"
+  ],
+  "unit": "tCO2e/year"
+}
