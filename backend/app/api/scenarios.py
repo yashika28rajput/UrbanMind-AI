@@ -13,6 +13,8 @@ from app.phase10.repository import (
     list_scenarios,
     persist_scenario_set,
     persist_scenario_version,
+    ScenarioConflictError,
+    ScenarioParentMissingError,
 )
 from app.phase10.schemas import Scenario, ScenarioGenerationRequest, ScenarioSet, ScenarioVersionRequest
 from app.phase11.engine import run_simulation
@@ -39,6 +41,8 @@ async def generate_scenarios(request: ScenarioGenerationRequest) -> ScenarioSet:
         return scenario_set
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ScenarioConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         logger.exception("Could not persist generated scenarios")
         raise HTTPException(status_code=503, detail="Scenario storage is unavailable.") from exc
@@ -206,6 +210,10 @@ async def create_scenario_version(
     }
     try:
         persist_scenario_version(previous_data["request_id"], next_version)
+    except ScenarioConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ScenarioParentMissingError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     except SQLAlchemyError as exc:
         logger.exception(
             "Could not persist scenario version",

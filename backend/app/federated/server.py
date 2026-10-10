@@ -83,7 +83,11 @@ class FederatedAveragingStrategy(FedAvg):
 
 
 def _save_checkpoint(model_name: str, round_number: int, parameters: np.ndarray) -> Path:
-    model_dir = Path(__file__).resolve().parents[3] / "models" / "federated" / model_name
+    base_dir = os.getenv("URBANMIND_FEDERATED_DIR")
+    root = Path(base_dir) if base_dir else Path(__file__).resolve().parents[3] / "models" / "federated"
+    model_dir = (root / model_name).resolve()
+    if root.resolve() not in model_dir.parents:
+        raise ValueError("Invalid federated model name.")
     model_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_path = model_dir / f"round_{round_number:03d}.npz"
     np.savez(checkpoint_path, parameters=parameters)

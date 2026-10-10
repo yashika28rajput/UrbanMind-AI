@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     QDRANT_API_KEY: str | None = None
     QDRANT_COLLECTION_NAME: str = "urbanmind_knowledge"
 
+    # Comma-separated list of allowed browser origins. Wildcards are not allowed
+    # because the API allows credentialed requests.
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
+
     AUTH_REQUIRED: bool = False
     AUTH_USERNAME: str | None = None
     AUTH_PASSWORD_HASH: str | None = None
@@ -33,6 +37,12 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 60
     USE_RERANKER: bool = False
+
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        origins = [item.strip() for item in self.CORS_ORIGINS.split(",") if item.strip()]
+        return [item for item in origins if item != "*"]
 
 
 settings = Settings()

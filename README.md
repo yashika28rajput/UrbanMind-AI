@@ -22,3 +22,33 @@ See docs/phases11-13.md for simulation, optimization, explainability, and the
 complete scenario-to-report pipeline.
 See docs/phase15-dashboard.md for dashboard setup, authentication, and service
 configuration.
+
+
+## Running locally (Windows PowerShell)
+
+Run from the repository root (the folder that contains `backend/`, `frontend/` and `tests/`).
+
+```powershell
+# Backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r backend\requirements.txt
+Copy-Item backend\.env.example backend\.env   # then edit; never commit .env
+cd backend
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+```powershell
+# Frontend (new terminal, from repository root)
+cd frontend
+npm ci
+npm run dev        # http://localhost:5173, proxies /api to http://127.0.0.1:8000
+```
+
+Check it is running: `Invoke-RestMethod http://127.0.0.1:8000/health` and
+`Invoke-RestMethod http://127.0.0.1:8000/api/v1/system/status`, then open http://localhost:5173.
+
+Tests: `python -m pytest tests -q` (uses a temporary database) and, in `frontend/`, `npm test` and `npm run build`.
+
+Browser origins allowed by the API are set with `CORS_ORIGINS` in `backend/.env`.
+Authentication is **off by default** (`AUTH_REQUIRED=false`); enable it before exposing the API beyond localhost.
