@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import {
-  Activity, ArrowDownRight, BarChart3, BookOpen, Check, ChevronDown,
+  Activity, ArrowDownRight, BarChart3, BookOpen, Check, ChevronDown, Database,
   CircleHelp, Clock3, Cpu, FileSearch, FlaskConical, Gauge, Layers3, Leaf, LogOut,
   Map as MapIcon, MapPin, Menu, RefreshCw, ShieldCheck, Sparkles, Target, Thermometer, Wind,
 } from 'lucide-react'
@@ -10,8 +10,9 @@ import {
 } from 'react-router-dom'
 import { errorMessage, formatMetric, requests } from './api'
 import type { MapMetric } from './components/CityMap'
+import DataManagementPage from './components/DataManagementPage'
 import type {
-  AuthConfig, CitySummary, OptimizationResult, Scenario, ScenarioSet,
+  AuthConfig, CarbonScenarioRequest, CarbonScenarioResult, CitySummary, OptimizationResult, Scenario, ScenarioSet,
   SimulationResult, SystemStatus, Ward, WardFeatureCollection,
 } from './types'
 
@@ -34,6 +35,7 @@ const navigation = [
   { to: '/overview', label: 'Overview', icon: Gauge },
   { to: '/city-twin', label: 'City Twin', icon: MapIcon },
   { to: '/scenarios', label: 'Scenario Lab', icon: FlaskConical },
+  { to: '/data-management', label: 'Data Management', icon: Database },
   { to: '/simulation', label: 'Simulation', icon: Activity },
   { to: '/optimization', label: 'Optimization', icon: BarChart3 },
   { to: '/decision-center', label: 'Decision Center', icon: Target },
@@ -46,6 +48,7 @@ const pageNames: Record<string, string> = {
   '/overview': 'City overview',
   '/city-twin': 'City twin',
   '/scenarios': 'Scenario lab',
+  '/data-management': 'Environmental data management',
   '/simulation': 'Simulation',
   '/optimization': 'Optimization',
   '/decision-center': 'Decision center',
@@ -106,8 +109,9 @@ function MetricCard({
   )
 }
 
-function DataField({ label, value, unit = '' }: { label: string; value: unknown; unit?: string }) {
-  return <div className="data-field"><span>{label}</span><strong>{typeof value === 'number' ? `${formatMetric(value)}${unit}` : 'Unavailable'}</strong></div>
+function DataField({ label, value, unit = '', unavailableReason, digits = 1 }: { label: string; value: unknown; unit?: string; unavailableReason?: string | null; digits?: number }) {
+  const isAvailable = typeof value === 'number' && Number.isFinite(value)
+  return <div className="data-field"><span>{label}</span><strong>{isAvailable ? `${formatMetric(value, digits)}${unit}` : 'Unavailable'}</strong>{!isAvailable && unavailableReason && <small className="data-field-reason">{unavailableReason}</small>}</div>
 }
 
 function JsonResult({ value }: { value: unknown }) {
@@ -190,7 +194,13 @@ function Overview({
         <MetricCard label="Surface temperature" value={formatMetric(summary?.average_temperature_c)} unit="°C" icon={Thermometer} accent="amber" note="Mean land surface temperature" />
         <MetricCard label="Green cover" value={formatMetric(summary?.average_green_cover_pct)} unit="%" icon={Leaf} accent="mint" note="Digital Twin estimate" />
         <MetricCard label="Health risk" value={formatMetric(summary?.average_health_risk, 2)} icon={Activity} accent="violet" note="Mean exposure score" />
-        <MetricCard label="Carbon reduction" value="Unavailable" icon={ArrowDownRight} accent="blue" note="No city-wide scenario result" />
+        <MetricCard
+          label="Carbon reduction"
+          value="Unavailable"
+          icon={ArrowDownRight}
+          accent="blue"
+          note={data.summary?.carbon_reduction_availability_reason ?? 'No validated city-wide tCO2e estimate'}
+        />
         <MetricCard label="Population represented" value={population ? formatMetric(population, 0) : 'Unavailable'} icon={MapIcon} accent="slate" note={data.wards.length ? `${data.wards.length} wards in the Digital Twin` : 'Ward population unavailable'} />
       </div>
 
@@ -280,6 +290,7 @@ function ScenariosPage({
   const [problem, setProblem] = useState('')
   const [objective, setObjective] = useState('')
   const [requestedInterventions, setRequestedInterventions] = useState('')
+  const [implementationPeriodYears, setImplementationPeriodYears] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [generated, setGenerated] = useState<ScenarioSet | null>(null)
@@ -292,6 +303,11 @@ function ScenariosPage({
   const generate = async (event: FormEvent) => {
     event.preventDefault()
     setError('')
+    const duration = Number(implementationPeriodYears)
+    if (!implementationPeriodYears.trim() || !Number.isFinite(duration) || duration <= 0) {
+      setError('Enter a positive finite implementation duration in years from the planner schedule.')
+      return
+    }
     setBusy(true)
     try {
       const result = (await requests.generateScenarios({
@@ -301,6 +317,7 @@ function ScenariosPage({
         problems: [problem.trim()],
         objectives: objective.split(',').map((item) => item.trim()).filter(Boolean),
         requested_interventions: requestedInterventions.split(',').map((item) => item.trim()).filter(Boolean),
+        implementation_period_years: duration,
         include_baseline: true,
         include_combinations: true,
         max_scenarios: 8,
@@ -323,6 +340,7 @@ function ScenariosPage({
             <label>Problem statement<textarea rows={3} placeholder="Describe the urban condition you want to address…" value={problem} onChange={(event) => setProblem(event.target.value)} required /></label>
             <label>Primary objectives <span className="label-hint">Separate multiple objectives with commas</span><input value={objective} onChange={(event) => setObjective(event.target.value)} placeholder="Reduce air pollution, improve green cover" /></label>
             <label>Requested interventions <span className="label-hint">Optional · comma separated</span><input value={requestedInterventions} onChange={(event) => setRequestedInterventions(event.target.value)} placeholder="Name an intervention or leave blank" /></label>
+            <label>Implementation duration (years) <span className="label-hint">Planner-supplied schedule · no default is assumed</span><input type="number" min="0" step="any" value={implementationPeriodYears} onChange={(event) => setImplementationPeriodYears(event.target.value)} placeholder="Enter duration from the approved plan" required /></label>
             <div className="request-context"><MapPin size={15} />Delhi · {selectedWard ? selectedWard.zone : 'City-wide'} · Baseline included</div>
             {error && <InlineError message={error} />}
             <button className="button button-primary button-wide" disabled={busy}>{busy ? <><RefreshCw size={15} className="spin" /> Generating scenarios…</> : <>Generate candidate scenarios <span>↗</span></>}</button>
@@ -338,6 +356,7 @@ function ScenariosPage({
           <div className="context-summary"><span>Digital Twin coverage</span><strong>{wards.length ? `${wards.length} ward states available` : 'Unavailable'}</strong></div>
         </Panel>
       </div>
+      <CarbonScenarioForm />
       <Panel title="Candidate scenarios" eyebrow={`${allScenarios.length} AVAILABLE`} className="scenario-results">
         {allScenarios.length ? <div className="scenario-card-grid">{allScenarios.map((item) => <ScenarioCard key={item.scenario_id} scenario={item} />)}</div> : <EmptyState title="No generated scenarios" detail="Submit a problem statement to create backend-generated candidate interventions." />}
       </Panel>
@@ -357,11 +376,286 @@ function ScenarioCard({ scenario }: { scenario: Scenario }) {
         <DataField label="AQI change" value={impacts?.expected_aqi_change} />
         <DataField label="UHI change" value={impacts?.expected_uhi_change} />
         <DataField label="Green cover" value={impacts?.expected_green_cover_change} unit="%" />
-        <DataField label="Carbon reduction" value={impacts?.expected_carbon_reduction} />
+        <DataField
+          label="Carbon reduction"
+          value={impacts?.expected_carbon_reduction}
+          unit=" tCO₂e/year"
+          unavailableReason={scenario.carbon_reduction_availability_reason}
+          digits={2}
+        />
         <DataField label="Health risk change" value={impacts?.expected_health_risk_change} />
       </div>
       <div className="scenario-card-foot"><span>{scenario.scenario_id}</span><span>Ward: {scenario.zone || 'City-wide'}</span></div>
     </article>
+  )
+}
+
+type CarbonScenarioFormValues = {
+  scenario_name: string
+  annual_vehicle_km: string
+  diesel_litres_per_vehicle_km: string
+  electric_kwh_per_vehicle_km: string
+  diesel_emission_factor_kg_co2_per_litre: string
+  electricity_emission_factor_kg_co2_per_kwh: string
+  baseline_period_start: string
+  baseline_period_end: string
+  project_period_start: string
+  project_period_end: string
+  activity_source: string
+  activity_reference: string
+  input_classification: 'Illustrative' | 'Estimated' | 'Measured'
+  diesel_factor_source: string
+  diesel_factor_version: string
+  diesel_factor_reference: string
+  diesel_factor_status: 'Illustrative' | 'Unverified' | 'Verified'
+  electricity_factor_source: string
+  electricity_factor_version: string
+  electricity_factor_reference: string
+  electricity_factor_status: 'Illustrative' | 'Unverified' | 'Verified'
+}
+
+type CarbonTextField =
+  | 'scenario_name' | 'activity_source' | 'activity_reference'
+  | 'diesel_factor_source' | 'diesel_factor_version' | 'diesel_factor_reference'
+  | 'electricity_factor_source' | 'electricity_factor_version' | 'electricity_factor_reference'
+type CarbonNumberField =
+  | 'annual_vehicle_km' | 'diesel_litres_per_vehicle_km' | 'electric_kwh_per_vehicle_km'
+  | 'diesel_emission_factor_kg_co2_per_litre' | 'electricity_emission_factor_kg_co2_per_kwh'
+type CarbonDateField =
+  | 'baseline_period_start' | 'baseline_period_end' | 'project_period_start' | 'project_period_end'
+
+const carbonDemoDefaults: CarbonScenarioFormValues = {
+  scenario_name: 'Illustrative bus electrification comparison',
+  annual_vehicle_km: '1000000',
+  diesel_litres_per_vehicle_km: '0.35',
+  electric_kwh_per_vehicle_km: '1.2',
+  diesel_emission_factor_kg_co2_per_litre: '2.68',
+  electricity_emission_factor_kg_co2_per_kwh: '0.65',
+  baseline_period_start: '2023-01-01',
+  baseline_period_end: '2023-12-31',
+  project_period_start: '2024-01-01',
+  project_period_end: '2024-12-31',
+  activity_source: 'Illustrative demonstration assumptions',
+  activity_reference: 'User-editable demo defaults; not observed Delhi records',
+  input_classification: 'Illustrative',
+  diesel_factor_source: 'Illustrative demonstration assumption — not an official factor',
+  diesel_factor_version: 'Demo assumption v1',
+  diesel_factor_reference: 'Illustrative only; replace with a verified source before real-world use',
+  diesel_factor_status: 'Illustrative',
+  electricity_factor_source: 'Illustrative demonstration assumption — not an official factor',
+  electricity_factor_version: 'Demo assumption v1',
+  electricity_factor_reference: 'Illustrative only; replace with a verified source before real-world use',
+  electricity_factor_status: 'Illustrative',
+}
+
+function CarbonScenarioForm() {
+  const [values, setValues] = useState(carbonDemoDefaults)
+  const [result, setResult] = useState<CarbonScenarioResult | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  const update = <K extends keyof CarbonScenarioFormValues>(key: K, value: CarbonScenarioFormValues[K]) => {
+    setValues((current) => ({ ...current, [key]: value }))
+    setResult(null)
+    setError('')
+  }
+
+  const calculate = async (event: FormEvent) => {
+    event.preventDefault()
+    setError('')
+    const annualVehicleKm = Number(values.annual_vehicle_km)
+    const dieselLitresPerKm = Number(values.diesel_litres_per_vehicle_km)
+    const electricKwhPerKm = Number(values.electric_kwh_per_vehicle_km)
+    const dieselFactor = Number(values.diesel_emission_factor_kg_co2_per_litre)
+    const electricityFactor = Number(values.electricity_emission_factor_kg_co2_per_kwh)
+    if ([annualVehicleKm, dieselLitresPerKm, electricKwhPerKm, dieselFactor, electricityFactor]
+      .some((value) => !Number.isFinite(value) || value <= 0)) {
+      setError('Enter finite values greater than zero for annual distance, energy intensities, and emission factors.')
+      return
+    }
+    setBusy(true)
+    try {
+      const payload: CarbonScenarioRequest = {
+        scenario_name: values.scenario_name.trim(),
+        annual_vehicle_km: annualVehicleKm,
+        diesel_litres_per_vehicle_km: dieselLitresPerKm,
+        electric_kwh_per_vehicle_km: electricKwhPerKm,
+        diesel_emission_factor_kg_co2_per_litre: dieselFactor,
+        electricity_emission_factor_kg_co2_per_kwh: electricityFactor,
+        baseline_period_start: values.baseline_period_start,
+        baseline_period_end: values.baseline_period_end,
+        project_period_start: values.project_period_start,
+        project_period_end: values.project_period_end,
+        activity_source: values.activity_source.trim(),
+        activity_reference: values.activity_reference.trim(),
+        input_classification: values.input_classification,
+        diesel_factor: {
+          source: values.diesel_factor_source.trim(),
+          version: values.diesel_factor_version.trim(),
+          reference: values.diesel_factor_reference.trim(),
+          status: values.diesel_factor_status,
+        },
+        electricity_factor: {
+          source: values.electricity_factor_source.trim(),
+          version: values.electricity_factor_version.trim(),
+          reference: values.electricity_factor_reference.trim(),
+          status: values.electricity_factor_status,
+        },
+      }
+      const response = await requests.calculateCarbonScenario(payload)
+      setResult(response.data)
+    } catch (err) {
+      setError(errorMessage(err))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const reset = () => {
+    setValues({ ...carbonDemoDefaults })
+    setResult(null)
+    setError('')
+  }
+
+  const textField = (
+    label: string,
+    key: CarbonTextField,
+    hint?: string,
+  ) => (
+    <label>{label}{hint && <span className="label-hint">{hint}</span>}
+      <input required value={values[key]} onChange={(event) => update(key, event.target.value)} />
+    </label>
+  )
+  const numberField = (label: string, key: CarbonNumberField, unit: string) => (
+    <label>{label} <span className="label-hint">{unit}</span>
+      <input
+        type="number"
+        min="0.0000001"
+        step="any"
+        required
+        value={values[key]}
+        onChange={(event) => update(key, event.target.value)}
+      />
+    </label>
+  )
+  const dateField = (label: string, key: CarbonDateField) => (
+    <label>{label}
+      <input type="date" required value={values[key]} onChange={(event) => update(key, event.target.value)} />
+    </label>
+  )
+  const selectField = (
+    label: string,
+    key: 'input_classification' | 'diesel_factor_status' | 'electricity_factor_status',
+  ) => (
+    <label>{label}
+      <select value={values[key]} onChange={(event) => {
+        const value = event.target.value
+        if (key === 'input_classification') {
+          update(key, value === 'Estimated' || value === 'Measured' ? value : 'Illustrative')
+        } else {
+          update(key, value === 'Verified' || value === 'Unverified' ? value : 'Illustrative')
+        }
+      }}>
+        {(key === 'input_classification'
+          ? ['Illustrative', 'Estimated', 'Measured']
+          : ['Illustrative', 'Unverified', 'Verified']).map((option) => <option key={option}>{option}</option>)}
+      </select>
+    </label>
+  )
+
+  return (
+    <Panel title="Carbon Reduction Scenario" eyebrow="TRANSPORT PILOT · BACKEND CALCULATION" className="carbon-scenario-panel">
+      <div className="carbon-demo-notice">
+        <strong>Illustrative demonstration assumptions</strong>
+        <span>The defaults are not measured Delhi transport data and neither emission factor is an official or verified factor.</span>
+      </div>
+      <form className="carbon-scenario-form" onSubmit={calculate}>
+        <div className="carbon-input-group">
+          <h3>Scenario and activity</h3>
+          <div className="carbon-input-grid">
+            {textField('Scenario name', 'scenario_name')}
+            {numberField('Total annual vehicle-kilometres', 'annual_vehicle_km', 'vehicle-km/year · shared baseline/project service')}
+            {numberField('Diesel consumption intensity', 'diesel_litres_per_vehicle_km', 'litres/vehicle-km')}
+            {numberField('Electric bus energy intensity', 'electric_kwh_per_vehicle_km', 'kWh/vehicle-km')}
+            <label>Input data classification
+              <select value={values.input_classification} onChange={(event) => {
+                const value = event.target.value
+                update('input_classification', value === 'Estimated' || value === 'Measured' ? value : 'Illustrative')
+              }}>
+                <option>Illustrative</option><option>Estimated</option><option>Measured</option>
+              </select>
+            </label>
+            {textField('Activity data source', 'activity_source')}
+            {textField('Activity data reference / provenance', 'activity_reference')}
+          </div>
+          <p className="carbon-form-note">Annual vehicle-kilometres are entered once and applied to both cases to avoid double-counting distance. Operating days are not needed because activity is already annualized.</p>
+        </div>
+        <div className="carbon-input-group">
+          <h3>Reporting periods</h3>
+          <div className="carbon-input-grid carbon-period-grid">
+            {dateField('Baseline period start', 'baseline_period_start')}
+            {dateField('Baseline period end', 'baseline_period_end')}
+            {dateField('Project period start', 'project_period_start')}
+            {dateField('Project period end', 'project_period_end')}
+          </div>
+        </div>
+        <div className="carbon-input-group">
+          <h3>Emission factors and provenance</h3>
+          <div className="carbon-factor-grid">
+            <section>
+              <h4>Diesel combustion</h4>
+              <div className="carbon-input-grid">
+                {numberField('Diesel emission factor', 'diesel_emission_factor_kg_co2_per_litre', 'kg CO₂/litre')}
+                {textField('Source', 'diesel_factor_source')}
+                {textField('Version / year', 'diesel_factor_version')}
+                {textField('Provenance / reference', 'diesel_factor_reference')}
+                {selectField('Factor status', 'diesel_factor_status')}
+              </div>
+            </section>
+            <section>
+              <h4>Charging electricity</h4>
+              <div className="carbon-input-grid">
+                {numberField('Electricity emission factor', 'electricity_emission_factor_kg_co2_per_kwh', 'kg CO₂/kWh')}
+                {textField('Source', 'electricity_factor_source')}
+                {textField('Version / year', 'electricity_factor_version')}
+                {textField('Provenance / reference', 'electricity_factor_reference')}
+                {selectField('Factor status', 'electricity_factor_status')}
+              </div>
+            </section>
+          </div>
+          <p className="carbon-form-note">Estimated/measured classifications reject demo-only activity provenance or illustrative factors. Measured mode additionally requires both factors to be marked verified.</p>
+        </div>
+        {error && <InlineError message={error} />}
+        <div className="carbon-form-actions">
+          <button className="button button-primary" disabled={busy}>{busy ? 'Calculating…' : 'Calculate Scenario'}</button>
+          <button className="button button-secondary" type="button" onClick={reset}>Reset to demo defaults</button>
+        </div>
+      </form>
+      {result && <section className="carbon-result" aria-live="polite" data-testid="carbon-scenario-result">
+        <div className="carbon-result-heading">
+          <div><span className="eyebrow">BACKEND-CALCULATED RESULT</span><h3>{result.scenario_name}</h3>{result.scenario_id && <span className="label-hint">Saved scenario: {result.scenario_id}</span>}</div>
+          <span className={`carbon-result-badge ${result.result_classification.toLowerCase()}`}>{result.display_label}</span>
+        </div>
+        <div className="carbon-result-grid">
+          <DataField label="Baseline diesel emissions" value={result.baseline_emissions_tco2_per_year} unit={` ${result.unit}`} digits={2} />
+          <DataField label="Project electricity emissions" value={result.project_emissions_tco2_per_year} unit={` ${result.unit}`} digits={2} />
+          <DataField label="Avoided emissions (baseline − project)" value={result.avoided_emissions_tco2_per_year} unit={` ${result.unit}`} digits={2} />
+          <DataField label="Project emissions change" value={result.percentage_change} unit={result.percentage_change === null ? '' : '%'} digits={2} />
+        </div>
+        <p className="carbon-form-note">Baseline activity: {formatMetric(result.baseline_diesel_litres_per_year, 2)} litres diesel/year · Project activity: {formatMetric(result.project_electricity_kwh_per_year, 2)} kWh/year · Service: {formatMetric(result.annual_vehicle_km, 0)} vehicle-km/year</p>
+        <div className="carbon-provenance">
+          <span>Diesel factor: {result.assumptions.diesel_factor.value_kg_co2_per_litre} kg CO₂/litre · {result.assumptions.diesel_factor.source} ({result.assumptions.diesel_factor.version}) · {result.assumptions.diesel_factor.status} · {result.assumptions.diesel_factor.reference}</span>
+          <span>Electricity factor: {result.assumptions.electricity_factor.value_kg_co2_per_kwh} kg CO₂/kWh · {result.assumptions.electricity_factor.source} ({result.assumptions.electricity_factor.version}) · {result.assumptions.electricity_factor.status} · {result.assumptions.electricity_factor.reference}</span>
+          <span>Activity provenance: {result.assumptions.activity_source} · {result.assumptions.activity_reference}</span>
+        </div>
+        <details className="carbon-method">
+          <summary>Calculation method and period assumptions</summary>
+          <p>{result.assumptions.calculation}</p>
+          <p>{result.assumptions.service_boundary}</p>
+          <p>Baseline: {result.periods.baseline_start} to {result.periods.baseline_end}. Project: {result.periods.project_start} to {result.periods.project_end}.</p>
+        </details>
+      </section>}
+    </Panel>
   )
 }
 
@@ -415,6 +709,7 @@ function SimulationPage({
   const metricLabels: Record<string, string> = {
     aqi: 'Air quality index', temperature: 'Surface temperature', green_cover: 'Green cover',
     health_risk: 'Health risk', carbon_emissions: 'Carbon emissions', carbon_impact: 'Carbon impact',
+    execution_time: 'Implementation duration',
     population_exposure: 'Population exposure', health_benefit: 'Health benefit', cost: 'Cost',
   }
 
@@ -443,7 +738,7 @@ function SimulationPage({
                 const baseline = typeof metric.baseline_value === 'number' ? `${formatMetric(metric.baseline_value)}${unit}` : 'Unavailable'
                 const simulated = typeof metric.simulated_value === 'number' ? `${formatMetric(metric.simulated_value)}${unit}` : 'Unavailable'
                 const delta = typeof metric.absolute_delta === 'number' ? `${metric.absolute_delta > 0 ? '+' : ''}${formatMetric(metric.absolute_delta)}${unit}` : 'Unavailable'
-                return <tr key={key}><td><strong>{metricLabels[key] ?? key.replaceAll('_', ' ')}</strong>{metric.availability && metric.availability !== 'available' && <small>{metric.availability_reason ?? metric.availability}</small>}</td><td>{baseline}</td><td>{simulated}</td><td className={metric.absolute_delta && metric.absolute_delta < 0 ? 'positive-delta' : ''}>{delta}</td></tr>
+                return <tr key={key}><td><strong>{metricLabels[key] ?? key.replaceAll('_', ' ')}</strong>{metric.availability && metric.availability !== 'available' && <small>{metric.availability_reason ?? metric.availability}</small>}{key === 'execution_time' && metric.availability === 'available' && metric.source_model && <small>{metric.source_model}</small>}</td><td>{baseline}</td><td>{simulated}</td><td className={metric.absolute_delta && metric.absolute_delta < 0 ? 'positive-delta' : ''}>{delta}</td></tr>
               })}
             </tbody></table></div>
           </Panel>
@@ -462,17 +757,21 @@ function OptimizationPage({
   onResult: (result: OptimizationResult) => void
 }) {
   const [selected, setSelected] = useState<string[]>(simulations.map((item) => item.simulation_id))
+  const [executionTimeSelected, setExecutionTimeSelected] = useState(false)
   const [savedOptimizationId, setSavedOptimizationId] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   useEffect(() => setSelected(simulations.map((item) => item.simulation_id)), [simulations])
   const selectedSims = simulations.filter((item) => selected.includes(item.simulation_id))
   const run = async () => {
-    if (!selectedSims.length) return
+    if (!selectedSims.length || !executionTimeSelected) return
     setBusy(true)
     setError('')
     try {
-      onResult((await requests.optimize({ simulations: selectedSims })).data)
+      onResult((await requests.optimize({
+        simulations: selectedSims,
+        objectives: [{ name: 'execution_time', direction: 'minimize' }],
+      })).data)
     } catch (err) {
       setError(errorMessage(err))
     } finally {
@@ -509,8 +808,9 @@ function OptimizationPage({
       <Panel title="Optimization inputs" eyebrow="SIMULATIONS & OBJECTIVES">
         {simulations.length ? <>
           <div className="simulation-select-list">{simulations.map((item) => <label key={item.simulation_id} className="simulation-select-item"><input type="checkbox" checked={selected.includes(item.simulation_id)} onChange={(event) => setSelected((current) => event.target.checked ? [...current, item.simulation_id] : current.filter((id) => id !== item.simulation_id))} /><span><strong>{item.scenario_id}</strong><small>{item.simulation_id} · {item.status}</small></span><Check size={16} /></label>)}</div>
-          <div className="objective-note"><Target size={16} />The optimizer uses its configured multi-objective defaults. Constraints may be supplied through the backend API.</div>
-          <button className="button button-primary" onClick={run} disabled={busy || selectedSims.length === 0}>{busy ? 'Optimizing…' : 'Run Pareto optimization'} <span>↗</span></button>
+          <label className="simulation-select-item"><input type="checkbox" checked={executionTimeSelected} onChange={(event) => setExecutionTimeSelected(event.target.checked)} /><span><strong>Execution time (years)</strong><small>Minimize using the planner-supplied schedule</small></span><Check size={16} /></label>
+          <div className="objective-note"><Target size={16} />Only explicitly selected, supported objectives are sent. Environmental objectives remain unavailable without evidence-backed simulation values.</div>
+          <button className="button button-primary" onClick={run} disabled={busy || selectedSims.length === 0 || !executionTimeSelected}>{busy ? 'Optimizing…' : 'Run optimization'} <span>↗</span></button>
         </> : <EmptyState title="Simulation inputs required" detail="Run one or more scenario simulations before optimizing candidate strategies." />}
         {error && <InlineError message={error} />}
       </Panel>
@@ -524,6 +824,7 @@ function OptimizationPage({
           <div className="optimization-count"><strong>{result.pareto_solutions.length}</strong><span>Pareto-optimal</span></div>
           <div className="optimization-count"><strong>{result.dominated_strategies.length}</strong><span>Dominated</span></div>
           <div className="optimization-count"><strong>{result.infeasible_strategies.length}</strong><span>Infeasible</span></div>
+          <div className="optimization-count"><strong>{result.unevaluable_strategies.length}</strong><span>Unevaluable</span></div>
         </div>
         <div className="optimization-grid">
           <Panel title="Pareto frontier" eyebrow="COST ↔ AIR QUALITY" className="pareto-panel">
@@ -538,6 +839,7 @@ function OptimizationPage({
             <StrategyList title="Pareto-optimal" items={result.pareto_solutions} />
             <StrategyList title="Dominated" items={result.dominated_strategies} />
             <StrategyList title="Infeasible" items={result.infeasible_strategies} />
+            <StrategyList title="Unevaluable" items={result.unevaluable_strategies} />
           </div>
         </Panel>
       </>}
@@ -546,7 +848,13 @@ function OptimizationPage({
 }
 
 function StrategyList({ title, items }: { title: string; items: Array<Record<string, unknown>> }) {
-  return <div className="strategy-column"><strong>{title} <span>{items.length}</span></strong>{items.length ? items.slice(0, 8).map((item, index) => <div className="strategy-row" key={String(item.scenario_id ?? index)}><span>{String(item.scenario_id ?? 'Strategy')}</span><small>{typeof item.pareto_rank === 'number' ? `Rank ${item.pareto_rank}` : ''}</small></div>) : <p>None returned.</p>}</div>
+  return <div className="strategy-column"><strong>{title} <span>{items.length}</span></strong>{items.length ? items.slice(0, 8).map((item, index) => {
+    const values = item.objective_values as Record<string, unknown> | undefined
+    const sources = item.objective_sources as Record<string, unknown> | undefined
+    const executionTime = values?.execution_time
+    const executionSource = sources?.execution_time
+    return <div className="strategy-row" key={String(item.scenario_id ?? index)}><span>{String(item.scenario_id ?? 'Strategy')}{typeof executionTime === 'number' && <small>{formatMetric(executionTime)} years</small>}{typeof executionSource === 'string' && <small>{executionSource}</small>}</span><small>{typeof item.pareto_rank === 'number' ? `Rank ${item.pareto_rank}` : ''}</small></div>
+  }) : <p>None returned.</p>}</div>
 }
 
 function DecisionPage({ selectedWard }: { selectedWard: Ward | null }) {
@@ -907,6 +1215,7 @@ function App() {
               <Route path="/overview" element={<Overview data={data} ward={ward} onSelectWard={setSelectedWardNumber} onNavigate={navigate} />} />
               <Route path="/city-twin" element={<WardPage data={data} ward={ward} onSelectWard={setSelectedWardNumber} />} />
               <Route path="/scenarios" element={<ScenariosPage wards={data.wards} selectedWard={ward} scenarios={data.scenarios} onScenariosChanged={addScenarios} />} />
+              <Route path="/data-management" element={<DataManagementPage wards={data.wards} />} />
               <Route path="/simulation" element={<SimulationPage scenarios={data.scenarios} ward={ward} simulations={simulations} onSimulation={addSimulation} />} />
               <Route path="/optimization" element={<OptimizationPage simulations={simulations} result={optimization} onResult={setOptimization} />} />
               <Route path="/decision-center" element={<DecisionPage selectedWard={ward} />} />

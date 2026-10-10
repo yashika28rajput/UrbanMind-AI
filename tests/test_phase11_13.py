@@ -4,6 +4,7 @@ import json
 
 from fastapi.testclient import TestClient
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -17,6 +18,7 @@ from app.phase10.schemas import (
     ScenarioIntervention,
 )
 from app.phase11.engine import run_simulation
+from app.phase10.engine import generate_scenario_set
 from app.phase11.schemas import (
     MetricDelta,
     SimulationInput,
@@ -142,6 +144,8 @@ def test_scenario_to_simulation_calculates_baseline_deltas_and_is_reproducible()
     assert result.simulated_state.temperature == 37.5
     assert result.simulated_state.green_cover == 16
     assert result.simulated_state.carbon_emissions == 47
+    assert result.metrics["carbon_impact"].simulated_value == 3
+    assert result.metrics["carbon_impact"].availability == "available"
     assert result.simulated_state.health_risk == 58
     assert result.simulated_state.cost == 5000
     assert result.metrics["population_exposure"].availability == "unavailable"
@@ -214,6 +218,8 @@ def test_intervention_simulation_reports_baseline_and_unavailable_effects() -> N
     assert result.metrics["green_cover"].simulated_value is None
     assert result.metrics["carbon_impact"].baseline_value is None
     assert result.metrics["carbon_impact"].simulated_value is None
+    assert "rule-based placeholder" in result.metrics["carbon_impact"].availability_reason
+    assert "emission_pressure_index" in result.metrics["carbon_impact"].availability_reason
     assert result.metrics["cost"].simulated_value is None
     assert all(
         result.metrics[metric].availability_reason
@@ -240,6 +246,7 @@ def test_intervention_simulation_reports_baseline_and_unavailable_effects() -> N
     assert response_metrics["aqi"]["baseline_value"] == result.metrics["aqi"].baseline_value
     assert response_metrics["aqi"]["simulated_value"] is None
     assert response_metrics["aqi"]["availability_reason"]
+    assert "rule-based placeholder" in response_metrics["carbon_impact"]["availability_reason"]
 
 
 def test_partial_simulation_keeps_provenance_backed_estimates_and_reasons() -> None:
@@ -337,6 +344,199 @@ def test_optimization_respects_directions_constraints_and_pareto_frontier() -> N
     }))
     assert [item.scenario_id for item in constrained.infeasible_strategies] == ["second", "dominated"]
     assert [item.scenario_id for item in constrained.pareto_solutions] == ["first"]
+
+
+def test_planner_duration_flows_through_simulation_and_single_objective_optimization() -> None:
+    generated = generate_scenario_set(
+        _state(),
+        ScenarioGenerationRequest(
+            city="TestCity",
+            problem_statement="Low green cover",
+            problems=["low_green_cover"],
+            requested_interventions=["Urban Forest Expansion"],
+            implementation_period_years=2.75,
+        ),
+    )
+    scenario = next(item for item in generated.scenarios if item.name == "Urban Forest Expansion")
+    simulation = run_simulation(SimulationRequest(urban_state=_state(), scenario=scenario))
+
+    assert simulation.metrics["execution_time"].simulated_value == 2.75
+    assert simulation.metrics["execution_time"].unit == "years"
+    assert simulation.metrics["execution_time"].source_model == (
+        "user_input: Planner-supplied implementation schedule"
+    )
+    assert simulation.metrics["aqi"].simulated_value is None
+    assert simulation.metrics["cost"].simulated_value is None
+
+    longer_scenario = scenario.model_copy(update={
+        "scenario_id": "urban-forest-longer",
+        "provenance": {
+            **scenario.provenance,
+            "implementation_schedule": {
+                "duration_years": 4.0,
+                "source_type": "user_input",
+                "source": "Planner-supplied implementation schedule",
+            },
+        },
+    })
+    longer_simulation = run_simulation(SimulationRequest(urban_state=_state(), scenario=longer_scenario))
+    result = run_optimization(OptimizationRequest(
+        simulations=[simulation, longer_simulation],
+        objectives=[ObjectiveDefinition(name="execution_time", direction="minimize")],
+    ))
+
+    assert [item.scenario_id for item in result.pareto_solutions] == [scenario.scenario_id]
+    assert result.pareto_solutions[0].objective_values["execution_time"] == 2.75
+    assert result.pareto_solutions[0].objective_sources["execution_time"] == (
+        "user_input: Planner-supplied implementation schedule"
+    )
+    assert [item.scenario_id for item in result.dominated_strategies] == ["urban-forest-longer"]
+
+
+def test_missing_duration_stays_unavailable_and_environmental_objective_is_unevaluable() -> None:
+    simulation = run_simulation(SimulationRequest(urban_state=_state(), scenario=_scenario()))
+    result = run_optimization(OptimizationRequest(
+        simulations=[simulation],
+        objectives=[
+            ObjectiveDefinition(name="execution_time", direction="minimize"),
+            ObjectiveDefinition(name="aqi", direction="minimize"),
+        ],
+    ))
+
+    assert simulation.metrics["execution_time"].simulated_value is None
+    assert "duration" in simulation.metrics["execution_time"].availability_reason.lower()
+    assert result.infeasible_strategies == []
+    assert result.scores[0].constraint_violations == []
+    assert result.unevaluable_strategies[0].missing_objectives == ["execution_time", "aqi"]
+
+
+def test_execution_time_does_not_fall_back_to_a_baseline_metric() -> None:
+    simulation = run_simulation(SimulationRequest(
+        urban_state=_state(),
+        scenario=_scenario(),
+        simulation_input=SimulationInput(baseline_metrics={"execution_time": 0.0}),
+    ))
+
+    assert simulation.baseline_state.execution_time is None
+    assert simulation.metrics["execution_time"].simulated_value is None
+    assert simulation.metrics["execution_time"].availability == "unavailable"
+
+
+@pytest.mark.parametrize("duration,unit", [(0, "years"), (-1, "years"), (2, "months")])
+def test_execution_time_estimates_reject_nonpositive_values_or_wrong_units(duration: float, unit: str) -> None:
+    with pytest.raises(ValueError, match="execution_time|Execution-time"):
+        SimulationInput(scenario_estimates={
+            "execution_time": ScenarioMetricEstimate(
+                value=duration,
+                unit=unit,
+                source_type="user_input",
+                source="Planner-supplied implementation schedule",
+            )
+        })
+
+
+@pytest.mark.parametrize("duration", [float("nan"), float("inf"), float("-inf")])
+def test_execution_time_estimates_reject_non_finite_values(duration: float) -> None:
+    with pytest.raises(ValueError):
+        ScenarioMetricEstimate(
+            value=duration,
+            unit="years",
+            source_type="user_input",
+            source="Planner-supplied implementation schedule",
+        )
+
+
+def test_optimization_requires_explicit_objectives() -> None:
+    with pytest.raises(ValidationError, match="objectives"):
+        OptimizationRequest(simulations=[_simulation("candidate", cost=10, green=20)])
+
+
+def test_missing_objectives_are_unevaluable_not_infeasible() -> None:
+    simulation = _simulation("missing-objective", cost=10, green=20)
+    metrics = dict(simulation.metrics)
+    metrics["aqi"] = metrics["aqi"].model_copy(update={"simulated_value": None})
+
+    result = run_optimization(OptimizationRequest(
+        simulations=[simulation.model_copy(update={"metrics": metrics})],
+        objectives=[
+            ObjectiveDefinition(name="cost", direction="minimize"),
+            ObjectiveDefinition(name="aqi", direction="minimize"),
+        ],
+    ))
+
+    assert [item.scenario_id for item in result.unevaluable_strategies] == ["missing-objective"]
+    assert result.unevaluable_strategies[0].missing_objectives == ["aqi"]
+    assert result.infeasible_strategies == []
+    assert result.pareto_solutions == []
+    assert result.dominated_strategies == []
+
+
+@pytest.mark.parametrize("invalid_value", [float("nan"), float("inf"), float("-inf")])
+def test_non_finite_objectives_are_unevaluable_without_crashing(invalid_value: float) -> None:
+    simulation = _simulation("non-finite-objective", cost=10, green=20)
+    metrics = dict(simulation.metrics)
+    metrics["aqi"] = metrics["aqi"].model_copy(update={"simulated_value": invalid_value})
+
+    result = run_optimization(OptimizationRequest(
+        simulations=[simulation.model_copy(update={"metrics": metrics})],
+        objectives=[ObjectiveDefinition(name="aqi", direction="minimize")],
+    ))
+
+    assert [item.scenario_id for item in result.unevaluable_strategies] == ["non-finite-objective"]
+    assert result.unevaluable_strategies[0].objective_values["aqi"] is None
+    assert result.infeasible_strategies == []
+    assert result.pareto_solutions == []
+
+
+def test_genuine_constraint_violation_remains_infeasible() -> None:
+    result = run_optimization(OptimizationRequest(
+        simulations=[_simulation("over-budget", cost=10, green=20)],
+        objectives=[ObjectiveDefinition(name="cost", direction="minimize")],
+        constraints=[ConstraintDefinition(name="budget", metric="cost", operator="<=", value=5)],
+    ))
+
+    assert [item.scenario_id for item in result.infeasible_strategies] == ["over-budget"]
+    assert result.infeasible_strategies[0].constraint_violations == ["budget: 10.0 exceeds 5.0."]
+    assert result.unevaluable_strategies == []
+    assert result.pareto_solutions == []
+
+
+def test_fully_numeric_constraint_compliant_candidate_is_pareto_rankable() -> None:
+    result = run_optimization(OptimizationRequest(
+        simulations=[_simulation("rankable", cost=10, green=20)],
+        objectives=[
+            ObjectiveDefinition(name="cost", direction="minimize"),
+            ObjectiveDefinition(name="green_cover", direction="maximize"),
+        ],
+        constraints=[ConstraintDefinition(name="budget", metric="cost", operator="<=", value=10)],
+    ))
+
+    assert [item.scenario_id for item in result.pareto_solutions] == ["rankable"]
+    assert result.pareto_solutions[0].objective_values == {"cost": 10.0, "green_cover": 20.0}
+    assert result.infeasible_strategies == []
+    assert result.unevaluable_strategies == []
+
+
+def test_empty_and_unevaluable_candidate_sets_have_no_pareto_points() -> None:
+    objectives = [ObjectiveDefinition(name="cost", direction="minimize")]
+    empty_result = run_optimization(OptimizationRequest(simulations=[], objectives=objectives))
+
+    simulation = _simulation("all-unavailable", cost=10, green=20)
+    metrics = dict(simulation.metrics)
+    metrics["cost"] = metrics["cost"].model_copy(update={"simulated_value": None})
+    unavailable_result = run_optimization(OptimizationRequest(
+        simulations=[simulation.model_copy(update={"metrics": metrics})],
+        objectives=objectives,
+    ))
+
+    assert empty_result.status == "no_candidates"
+    assert empty_result.pareto_solutions == []
+    assert empty_result.dominated_strategies == []
+    assert empty_result.infeasible_strategies == []
+    assert empty_result.unevaluable_strategies == []
+    assert unavailable_result.status == "no_rankable_solutions"
+    assert unavailable_result.pareto_solutions == []
+    assert unavailable_result.dominated_strategies == []
 
 
 def test_prediction_explanation_uses_shap_and_counterfactual_changes_one_feature() -> None:

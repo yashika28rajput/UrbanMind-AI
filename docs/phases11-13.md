@@ -15,8 +15,11 @@ scenario can be sent directly as the `scenario` object.
 Metrics include AQI, temperature/UHI, green cover, carbon reduction and
 emissions, health risk/benefit, cost, population exposure, execution time, and
 sustainability. Model values are calculated with the existing trained AQI and
-urban-heat estimators, or the existing formula-based green-cover, carbon, and
-health estimators, only when the corresponding model features are supplied.
+urban-heat estimators, or the existing formula-based green-cover and health
+estimators, only when the corresponding model features are supplied. The
+checked-in carbon artifact is a rule-based placeholder, not a calibrated
+tCO2e estimator; carbon reduction remains unavailable unless a provenance-backed
+impact estimate is supplied.
 Feature names must match the model metadata. Scenario feature overrides can be
 given globally for a one-scenario request, by generated scenario ID, or by
 intervention ID (use the latter for a set of generated scenarios).
@@ -40,8 +43,13 @@ MAE is reported as error, not as a confidence interval.
 
 When a model prediction is unavailable but a numeric baseline and a Phase 10
 provenance-backed delta exist, the isolated fallback applies `simulated =
-baseline + validated_delta`. It does not extrapolate a generic intervention
-coefficient. A missing baseline or missing validated delta remains unavailable.
+baseline + validated_delta`. A Phase 10 carbon-reduction estimate is itself an
+absolute reduction metric and can be reported without a separate baseline
+carbon-impact value; this does not make baseline carbon emissions available.
+The API relies on the supplied estimate's provenance declaration and does not
+independently validate external evidence. It does not extrapolate a generic
+intervention coefficient. Other derived metrics remain unavailable when their
+required baseline or validated delta is missing.
 
 The normalized request has a SHA-256 reproducibility key. Simulation records,
 including the scenario ID/version, are stored in the existing configured
@@ -164,3 +172,26 @@ To run the complete test suite:
 $env:PYTHONPATH = "$PWD\backend"
 & "..\.venv\Scripts\python.exe" -m pytest tests -q
 ```
+# Carbon scenario input workflow
+
+Scenario Lab also exposes a transport carbon comparison at
+`POST /api/v1/carbon/scenarios/calculate`. It compares annual diesel baseline
+emissions with annual charging-electricity emissions for the same explicitly
+entered vehicle-kilometres:
+
+- Baseline tCO2/year = vehicle-km/year × diesel litres/vehicle-km × kg CO2/litre ÷ 1,000.
+- Project tCO2/year = vehicle-km/year × electric kWh/vehicle-km × kg CO2/kWh ÷ 1,000.
+- Avoided tCO2/year = baseline minus project; the result can be negative.
+
+The UI starts with clearly labelled illustrative assumptions, and the API
+returns those results as `SIMULATED` with `SIMULATED SCENARIO — NOT MEASURED`.
+Estimated and measured classifications require non-demo activity provenance;
+measured additionally requires both factors to be marked verified. These are
+user-declared references, not independently validated source integrations.
+Each reporting period must cover one annual interval, and the baseline must
+precede the project period. Each calculated scenario is saved through the
+existing Phase 10 scenario repository with its input and calculation
+provenance; its carbon estimate is not copied into `expected_impacts` and is
+not propagated into city, ward, or Digital Twin metrics. This pilot reports
+CO2, not full CO2e, and does not establish actual fleet activity, factor
+authority, or achieved impacts.

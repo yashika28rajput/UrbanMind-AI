@@ -60,6 +60,10 @@ def test_scenario_generation_returns_baseline_options_without_fake_estimates() -
     assert all(scenario.expected_impacts is None for scenario in result.scenarios)
     assert all(scenario.estimated_cost is None for scenario in result.scenarios)
     assert all(
+        "emission_pressure_index" in scenario.carbon_reduction_availability_reason
+        for scenario in result.scenarios
+    )
+    assert all(
         set(intervention.parameters) == set(intervention.parameter_sources)
         for scenario in result.scenarios
         for intervention in scenario.interventions
@@ -70,6 +74,38 @@ def test_scenario_generation_returns_baseline_options_without_fake_estimates() -
         or all(intervention.parameters for intervention in scenario.interventions)
         for scenario in result.scenarios
     )
+
+
+def test_planner_schedule_is_preserved_for_intervention_scenarios() -> None:
+    result = generate_scenario_set(
+        urban_state("Low green cover in TestCity."),
+        ScenarioGenerationRequest(
+            city="TestCity",
+            problem_statement="Low green cover",
+            problems=["low_green_cover"],
+            requested_interventions=["Urban Forest Expansion"],
+            implementation_period_years=2.75,
+        ),
+    )
+
+    forest = next(item for item in result.scenarios if item.name == "Urban Forest Expansion")
+    assert forest.provenance["implementation_schedule"] == {
+        "duration_years": 2.75,
+        "source_type": "user_input",
+        "source": "Planner-supplied implementation schedule",
+    }
+    assert forest.expected_impacts is None
+    assert forest.estimated_cost is None
+
+
+@pytest.mark.parametrize("duration", [0, -1, float("nan"), float("inf"), float("-inf")])
+def test_scenario_generation_rejects_invalid_planner_durations(duration: float) -> None:
+    with pytest.raises(ValidationError, match="implementation_period_years"):
+        ScenarioGenerationRequest(
+            city="TestCity",
+            problem_statement="Low green cover",
+            implementation_period_years=duration,
+        )
 
 
 def test_missing_parameters_and_budget_are_not_claimed_feasible() -> None:

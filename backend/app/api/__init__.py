@@ -3,7 +3,9 @@ from fastapi import APIRouter
 from .auth import router as auth_router
 from .carbon import router as carbon_router
 from .agentic import router as agentic_router
+from .carbon_scenarios import router as carbon_scenarios_router
 from .digital_twin import router as digital_twin_router
+from .environmental_data import router as environmental_data_router
 from .federated import router as federated_router
 from .predictions import router as prediction_router
 from .rag import router as rag_router
@@ -17,9 +19,11 @@ from app.phase13.pipeline_api import router as pipeline_router
 
 router = APIRouter()
 router.include_router(auth_router)
+router.include_router(carbon_scenarios_router)
 router.include_router(prediction_router)
 router.include_router(carbon_router)
 router.include_router(digital_twin_router)
+router.include_router(environmental_data_router)
 router.include_router(urban_memory_router)
 router.include_router(rag_router)
 router.include_router(federated_router)

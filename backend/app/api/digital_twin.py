@@ -8,6 +8,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from app.digital_twin.service import get_virtual_city_model, get_ward_state
+from app.services.prediction_service import CARBON_REDUCTION_UNAVAILABLE_REASON
 
 router = APIRouter(prefix="/api/v1/digital-twin", tags=["digital-twin"])
 PROJECT_DIR = Path(__file__).resolve().parents[3]
@@ -19,10 +20,14 @@ WARD_GEOJSON_PATH = (
 @router.get("/summary")
 async def digital_twin_summary() -> dict[str, object]:
     model = get_virtual_city_model()
+    summary = {
+        **model["summary"],
+        "carbon_reduction_availability_reason": CARBON_REDUCTION_UNAVAILABLE_REASON,
+    }
     return {
         "city": model["city"],
         "phase": model["phase"],
-        "summary": model["summary"],
+        "summary": summary,
     }
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from functools import lru_cache
+from math import isfinite
 from time import perf_counter
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,7 @@ from app.phase9.graph.state import UrbanState
 from app.phase11.adapter import adapt_simulation_request
 from app.phase11.schemas import (
     MetricDelta,
+    ScenarioMetricEstimate,
     SimulationInput,
     SimulationMetadata,
     SimulationRequest,
@@ -20,6 +22,7 @@ from app.phase11.schemas import (
     SimulatedUrbanState,
 )
 from app.services import prediction_service
+from app.services.prediction_service import CARBON_REDUCTION_UNAVAILABLE_REASON
 
 METRIC_SPECS = {
     "aqi": ("AQI", "unavailable: no validated impact or scenario features"),
@@ -135,6 +138,8 @@ def _read_model_prediction(
     try:
         result = predictor(features)
     except ValueError as exc:
+        if metric == "carbon_impact" and str(exc) == CARBON_REDUCTION_UNAVAILABLE_REASON:
+            return None
         if "Missing required features" in str(exc) or "No valid features" in str(exc):
             return None
         raise
@@ -168,8 +173,10 @@ def _estimate_pair(
             baseline = before[0]
         else:
             if scenario_delta is not None:
+                if metric == "carbon_impact":
+                    return None, "Phase 10 provenance-backed impact estimate", scenario_delta, None
                 return None, "Phase 10 provenance-backed impact estimate", None, None
-            return None, "unavailable: provide a numeric baseline or complete model features", None, None
+        return None, "unavailable: provide a numeric baseline or complete model features", None, None
     if scenario_delta is None:
         return baseline, "unavailable: no validated impact estimate or changed model features", None, None
     # Scenario impact estimates are admitted by Phase 10 only when provenance is present.
@@ -185,6 +192,8 @@ def _unavailable_reason(
     baseline_features: dict[str, float],
     scenario_features: dict[str, float],
 ) -> str:
+    if metric == "carbon_impact":
+        return CARBON_REDUCTION_UNAVAILABLE_REASON
     if metric in MODEL_INPUTS:
         if scenario.interventions and not scenario_features:
             return (
@@ -198,9 +207,10 @@ def _unavailable_reason(
             return "No Digital Twin baseline or complete model feature vector is available."
         return "The required model features are incomplete and no validated estimate is available."
     if metric == "carbon_emissions":
-        return "No provenance-backed absolute emissions estimate or intervention mapping is available."
-    if metric == "carbon_impact":
-        return "No validated carbon-impact estimate or complete model feature vector is available."
+        return (
+            "Carbon emissions are unavailable: no scenario-specific absolute baseline emissions "
+            "inventory or activity data and applicable source-specific emission factors were supplied."
+        )
     if metric == "cost":
         return "No provenance-backed scenario cost estimate is available."
     if metric == "population_exposure":
@@ -217,9 +227,30 @@ def _unavailable_reason(
     return f"No validated simulated value is available for {metric}."
 
 
+def _apply_planner_schedule_estimate(request: SimulationRequest) -> SimulationRequest:
+    schedule = request.scenario.provenance.get("implementation_schedule")
+    if not isinstance(schedule, dict) or "execution_time" in request.simulation_input.scenario_estimates:
+        return request
+    estimate = ScenarioMetricEstimate.model_validate({
+        "value": schedule.get("duration_years"),
+        "unit": "years",
+        "source_type": "user_input",
+        "source": schedule.get("source") or "Planner-supplied implementation schedule",
+    })
+    inputs = request.simulation_input.model_dump(mode="python")
+    inputs["scenario_estimates"] = {
+        **inputs["scenario_estimates"],
+        "execution_time": estimate,
+    }
+    return request.model_copy(update={
+        "simulation_input": SimulationInput.model_validate(inputs),
+    })
+
+
 def run_simulation(request: SimulationRequest) -> SimulationResult:
     started = perf_counter()
     request = adapt_simulation_request(request)
+    request = _apply_planner_schedule_estimate(request)
     state, scenario, inputs = request.urban_state, request.scenario, request.simulation_input
     baseline_values = _input_baseline(state, inputs)
     scenario_features = _feature_map(scenario, inputs)
@@ -235,7 +266,7 @@ def run_simulation(request: SimulationRequest) -> SimulationResult:
         health_benefit=-baseline_values["health_risk"] if "health_risk" in baseline_values else None,
         cost=baseline_values.get("cost"),
         population_exposure=baseline_values.get("population_exposure"),
-        execution_time=baseline_values.get("execution_time"),
+        execution_time=None,
         sustainability=baseline_values.get("sustainability"),
     )
 
@@ -254,12 +285,16 @@ def run_simulation(request: SimulationRequest) -> SimulationResult:
         "sustainability": None,
     }
     params = _scenario_parameters(scenario)
-    duration = next(
-        (float(params[key]) for key in ("implementation_period_years", "deployment_period_years") if key in params),
+    raw_duration = next(
+        (params[key] for key in ("implementation_period_years", "deployment_period_years") if key in params),
         None,
     )
-    if duration is not None:
-        baseline_state.execution_time = baseline_values.get("execution_time")
+    try:
+        duration = float(raw_duration) if raw_duration is not None and not isinstance(raw_duration, bool) else None
+    except (TypeError, ValueError):
+        duration = None
+    if duration is not None and (not isfinite(duration) or duration <= 0):
+        duration = None
     simulated_values: dict[str, float | None] = {}
     metric_results: dict[str, MetricDelta] = {}
     uncertainty: list[SimulationUncertainty] = []
@@ -298,8 +333,8 @@ def run_simulation(request: SimulationRequest) -> SimulationResult:
             if scenario.estimated_cost is None and not scenario.interventions:
                 simulated = base
         elif metric == "execution_time":
-            base = baseline_values.get("execution_time")
-            simulated = duration if duration is not None else base
+            base = None
+            simulated = duration
             source = "scenario implementation period" if duration is not None else "unavailable: no duration supplied"
         else:
             simulated = base + impact_deltas[metric] if base is not None and impact_deltas[metric] is not None else (

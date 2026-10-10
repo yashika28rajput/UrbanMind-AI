@@ -37,6 +37,8 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 500
     CHUNK_OVERLAP: int = 60
     USE_RERANKER: bool = False
+    ENVIRONMENTAL_UPLOAD_MAX_BYTES: int = 5 * 1024 * 1024
+    ENVIRONMENTAL_UPLOAD_MAX_ROWS: int = 5000
 
 
     @property

@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 import logging
 import re
+from math import isfinite
 from time import perf_counter
 from typing import Any
 
@@ -18,6 +19,7 @@ from app.phase10.schemas import (
     ScenarioSet,
 )
 from app.phase9.graph.state import UrbanState
+from app.services.prediction_service import CARBON_REDUCTION_UNAVAILABLE_REASON
 
 logger = logging.getLogger(__name__)
 
@@ -209,6 +211,15 @@ def _validate_parameters(
     if missing:
         review.append(f"Required implementation parameters are missing: {', '.join(missing)}.")
     for key, value in parameters.items():
+        if key in {"implementation_period_years", "deployment_period_years"}:
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not isfinite(float(value))
+                or value <= 0
+            ):
+                failures.append(f"Parameter '{key}' must be a positive finite number of years.")
+            continue
         if isinstance(value, bool) or value is None:
             failures.append(f"Parameter '{key}' must have a value.")
         elif isinstance(value, (int, float)) and value <= 0:
@@ -232,10 +243,14 @@ def _validate_parameters(
             review.append("Land feasibility cannot be checked until area_hectares is provided.")
     horizon = constraints.time_horizon_years
     if horizon is not None:
-        duration = next(
-            (parameters[key] for key in ("implementation_period_years", "deployment_period_years") if key in parameters),
-            None,
-        )
+        duration = request.implementation_period_years
+        if duration is None:
+            duration = next(
+                (parameters[key] for key in ("implementation_period_years", "deployment_period_years") if key in parameters),
+                None,
+            )
+        if isinstance(duration, bool) or not isinstance(duration, (int, float)) or not isfinite(float(duration)):
+            duration = None
         if isinstance(duration, (int, float)) and not isinstance(duration, bool) and duration > horizon:
             failures.append(f"Implementation duration ({duration} years) exceeds the planning horizon ({horizon} years).")
         elif duration is None and any(
@@ -305,6 +320,12 @@ def _make_scenario(
 
     if not evidence_ids:
         review.append("No indexed evidence was retrieved for this request.")
+    if definitions and request.implementation_period_years is None and not any(
+        key in parameters
+        for parameters in parameter_sets
+        for key in ("implementation_period_years", "deployment_period_years")
+    ):
+        review.append("Implementation duration is unavailable; execution time cannot be optimized.")
     if not state.policy_analysis:
         review.append("Policy conflicts have not been evaluated for this scenario.")
     else:
@@ -343,12 +364,18 @@ def _make_scenario(
         required_resources=[],
         assumptions=[
             "No cost or impact estimates are generated in Phase 10.",
+            *(
+                ["Implementation duration is planner-supplied and represents the planned schedule, not measured elapsed time."]
+                if definitions and request.implementation_period_years is not None
+                else []
+            ),
             *([f"Implementation parameters for {item.name} remain unspecified." for item in interventions
                if any(param not in item.parameters for param in next(
                    definition.required_parameters for definition in definitions
                    if definition.intervention_id == item.intervention_id
                ))]),
         ],
+        carbon_reduction_availability_reason=CARBON_REDUCTION_UNAVAILABLE_REASON,
         constraints=list(dict.fromkeys(constraints + failures + review)),
         evidence_ids=evidence_ids,
         source_ids=evidence_ids,
@@ -358,6 +385,13 @@ def _make_scenario(
             "urban_state_version": request.urban_state_version,
             "intervention_catalog_version": "1.0",
             "generation_method": "deterministic_catalog",
+            **({
+                "implementation_schedule": {
+                    "duration_years": request.implementation_period_years,
+                    "source_type": "user_input",
+                    "source": "Planner-supplied implementation schedule",
+                }
+            } if definitions and request.implementation_period_years is not None else {}),
         },
     )
 

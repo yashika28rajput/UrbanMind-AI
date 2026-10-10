@@ -146,10 +146,10 @@ def test_carbon_reduction_endpoint() -> None:
     }
 
     response = client.post("/api/v1/predict/carbon-reduction", json=payload)
-    assert response.status_code == 200, response.text
+    assert response.status_code == 400, response.text
     data = response.json()
-    assert data["target"] == "CO2_reduction_tons"
-    assert "predicted_value" in data
+    assert "rule-based placeholder" in data["detail"]
+    assert "emission_pressure_index" in data["detail"]
 
 
 def test_health_risk_endpoint() -> None:
@@ -176,6 +176,7 @@ def test_digital_twin_summary_endpoint() -> None:
     assert data["city"] == "Delhi"
     assert data["phase"] == "PHASE 5 — Urban Digital Twin"
     assert "summary" in data
+    assert "rule-based placeholder" in data["summary"]["carbon_reduction_availability_reason"]
 
 
 def test_digital_twin_ward_endpoint() -> None:

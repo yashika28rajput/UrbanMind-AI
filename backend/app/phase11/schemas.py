@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.phase10.schemas import Scenario
 from app.phase9.graph.state import UrbanState
@@ -19,9 +19,16 @@ class SimulationInput(BaseModel):
     scenario_features_by_intervention: dict[str, dict[str, dict[str, float]]] = Field(default_factory=dict)
     scenario_estimates: dict[str, "ScenarioMetricEstimate"] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def validate_execution_time_estimate(self) -> "SimulationInput":
+        estimate = self.scenario_estimates.get("execution_time")
+        if estimate is not None and (estimate.value <= 0 or estimate.unit != "years"):
+            raise ValueError("execution_time requires a positive finite value in years.")
+        return self
+
 
 class ScenarioMetricEstimate(BaseModel):
-    value: float
+    value: float = Field(allow_inf_nan=False)
     unit: str
     source_type: Literal["validated_model", "external_simulator", "user_input", "configured_assumption"]
     source: str = Field(min_length=1)
@@ -29,6 +36,12 @@ class ScenarioMetricEstimate(BaseModel):
     model_version: str | None = None
     confidence: float | None = Field(default=None, ge=0, le=1)
     uncertainty: float | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def validate_execution_time(self) -> "ScenarioMetricEstimate":
+        if self.source_type == "user_input" and self.unit == "years" and self.value <= 0:
+            raise ValueError("Execution-time estimates must be greater than zero years.")
+        return self
 
 
 class SimulatedUrbanState(BaseModel):

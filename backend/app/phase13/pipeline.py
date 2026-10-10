@@ -28,7 +28,7 @@ from app.phase13.schemas import (
 
 class PipelineRequest(ScenarioGenerationRequest):
     simulation_input: SimulationInput = Field(default_factory=SimulationInput)
-    optimization_objectives: list[ObjectiveDefinition] = Field(default_factory=list)
+    optimization_objectives: list[ObjectiveDefinition] = Field(min_length=1)
     optimization_constraints: list[ConstraintDefinition] = Field(default_factory=list)
     decision_preferences: dict[str, float] = Field(default_factory=dict)
 
@@ -99,7 +99,7 @@ def _optimize(state: PipelineState) -> dict[str, Any]:
     request = state["request"]
     result = run_optimization(OptimizationRequest(
         simulations=state["simulations"],
-        objectives=request.optimization_objectives or OptimizationRequest.default_objectives(),
+        objectives=request.optimization_objectives,
         constraints=request.optimization_constraints,
         decision_preferences=request.decision_preferences,
     ))

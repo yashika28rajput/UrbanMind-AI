@@ -1,7 +1,16 @@
 import axios from 'axios'
 import type {
   AuthConfig,
+  CarbonScenarioRequest,
+  CarbonScenarioResult,
   CitySummary,
+  EnvironmentalColumnMapping,
+  EnvironmentalImportResult,
+  EnvironmentalRecord,
+  EnvironmentalRecordInput,
+  EnvironmentalRecordPage,
+  EnvironmentalUploadPreview,
+  EnvironmentalValidationReport,
   OptimizationResult,
   Scenario,
   ScenarioSet,
@@ -34,6 +43,30 @@ export const requests = {
   systemStatus: () => api.get<SystemStatus>('/system/status'),
   generateScenarios: (payload: Record<string, unknown>) =>
     api.post<ScenarioSet>('/scenarios/generate', payload),
+  calculateCarbonScenario: (payload: CarbonScenarioRequest) =>
+    api.post<CarbonScenarioResult>('/carbon/scenarios/calculate', payload),
+  environmentalPreview: (file: File) => {
+    const body = new FormData()
+    body.append('file', file)
+    return api.post<EnvironmentalUploadPreview>('/environmental-data/uploads/preview', body)
+  },
+  validateEnvironmentalUpload: (file: File, mapping: EnvironmentalColumnMapping) => {
+    const body = new FormData()
+    body.append('file', file)
+    body.append('mapping_json', JSON.stringify(mapping))
+    return api.post<EnvironmentalValidationReport>('/environmental-data/uploads/validate', body)
+  },
+  importEnvironmentalUpload: (file: File, mapping: EnvironmentalColumnMapping, checksum: string) => {
+    const body = new FormData()
+    body.append('file', file)
+    body.append('mapping_json', JSON.stringify(mapping))
+    body.append('checksum', checksum)
+    return api.post<EnvironmentalImportResult>('/environmental-data/imports/confirm', body)
+  },
+  createEnvironmentalRecord: (payload: EnvironmentalRecordInput) =>
+    api.post<EnvironmentalRecord>('/environmental-data/records', payload),
+  environmentalRecords: (params: { limit: number; offset: number; ward_id?: number }) =>
+    api.get<EnvironmentalRecordPage>('/environmental-data/records', { params }),
   simulateScenario: (payload: Record<string, unknown>) =>
     api.post<SimulationResult>('/simulation/run', payload),
   getSimulation: (simulationId: string) =>
@@ -62,6 +95,18 @@ export function errorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const detail = (error.response?.data as { detail?: unknown } | undefined)?.detail
     if (typeof detail === 'string') return detail
+    if (Array.isArray(detail)) {
+      const validationMessages = detail.flatMap((item) => {
+        if (typeof item !== 'object' || item === null) return []
+        const validationError = item as { loc?: unknown; msg?: unknown }
+        if (typeof validationError.msg !== 'string') return []
+        const location = Array.isArray(validationError.loc)
+          ? validationError.loc.filter((part): part is string | number => typeof part === 'string' || typeof part === 'number').slice(1).join('.')
+          : ''
+        return [location ? `${location}: ${validationError.msg}` : validationError.msg]
+      })
+      if (validationMessages.length) return validationMessages.join('; ')
+    }
     if (error.code === 'ECONNABORTED') return 'The request timed out. Please try again.'
     if (!error.response) return 'Unable to connect to the UrbanMind AI backend.'
     return `The backend returned an error (${error.response.status}).`

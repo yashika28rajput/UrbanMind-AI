@@ -24,6 +24,15 @@ CARBON_REDUCTION_MODEL_INFO_PATH = MODELS_DIR / "carbon_model_info.json"
 HEALTH_RISK_MODEL_PATH = MODELS_DIR / "health_risk_model.pkl"
 HEALTH_RISK_MODEL_INFO_PATH = MODELS_DIR / "health_risk_model_info.json"
 
+CARBON_REDUCTION_UNAVAILABLE_REASON = (
+    "Carbon reduction is unavailable: the configured carbon artifact is a rule-based "
+    "placeholder without fitted coefficients or validation data. The available "
+    "emission_pressure_index and intervention-potential values are dimensionless "
+    "proxies and cannot be converted to tCO2e/year. A scenario-specific baseline "
+    "emissions inventory or activity data, applicable source-specific emission "
+    "factors, and a validated intervention-effect estimate are required."
+)
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
@@ -104,16 +113,6 @@ def _green_cover_prediction_from_dict(feature_values: Mapping[str, float]) -> fl
     built_share = float(feature_values.get("built", 0.0))
     prediction = vegetation_total * 100.0 * (1.0 - 0.45 * built_share)
     return max(0.0, min(100.0, prediction))
-
-
-def _carbon_reduction_prediction_from_dict(feature_values: Mapping[str, float]) -> float:
-    green_cover_pct = float(feature_values.get("green_cover_percent", _green_cover_prediction_from_dict(feature_values)))
-    emission_pressure = float(feature_values.get("emission_pressure_index", 0.0))
-    intervention_strength = float(
-        feature_values.get("intervention_strength", feature_values.get("urban_intervention_potential", 0.5))
-    )
-    prediction = (green_cover_pct / 100.0) * 170.0 + emission_pressure * 150.0 * intervention_strength
-    return max(0.0, prediction)
 
 
 def _health_risk_prediction_from_dict(feature_values: Mapping[str, float]) -> float:
@@ -208,12 +207,12 @@ def estimate_carbon_reduction(features: Mapping[str, Any]) -> dict[str, Any]:
     model = joblib.load(CARBON_REDUCTION_MODEL_PATH)
 
     if isinstance(model, dict):
-        prediction = _carbon_reduction_prediction_from_dict(feature_values)
-    elif hasattr(model, "predict"):
-        frame = pd.DataFrame([feature_values], columns=required_features)
-        prediction = float(model.predict(frame)[0])
-    else:
+        raise ValueError(CARBON_REDUCTION_UNAVAILABLE_REASON)
+    if not hasattr(model, "predict"):
         raise TypeError("Unsupported carbon reduction model type.")
+
+    frame = pd.DataFrame([feature_values], columns=required_features)
+    prediction = float(model.predict(frame)[0])
 
     reduction = max(0.0, prediction)
 

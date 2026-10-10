@@ -40,6 +40,7 @@ distro==1.9.0
 docker==7.2.0
 earthengine-api==1.7.40
 executing==2.2.1
+et-xmlfile==2.0.0
 fastapi==0.138.2
 fastjsonschema==2.22.2
 filelock==3.32.3
@@ -73,7 +74,7 @@ graphql-relay==3.2.0
 graphviz==0.21
 greenlet==3.5.5
 grpcio==1.83.0
-grpcio-health-checking==1.81.1
+grpcio-health-checking==1.71.2
 grpcio-status==1.71.2
 h11==0.16.0
 h2==4.4.1
@@ -165,6 +166,7 @@ notebook_shim==0.2.4
 numba==0.67.0
 numpy==2.5.2
 openai==3.3.1
+openpyxl==3.1.5
 opentelemetry-api==1.44.0
 opentelemetry-proto==1.44.0
 opentelemetry-sdk==1.44.0
@@ -187,7 +189,7 @@ prometheus_client==0.26.0
 prompt_toolkit==3.0.53
 propcache==0.5.2
 proto-plus==1.28.2
-protobuf==6.33.6
+protobuf==5.29.6
 psutil==7.2.2
 psycopg2-binary==2.9.12
 pure_eval==0.2.3

@@ -138,6 +138,7 @@ class Scenario(BaseModel):
     required_resources: list[str] = Field(default_factory=list)
     estimated_cost: CostEstimate | None = None
     expected_impacts: ImpactEstimate | None = None
+    carbon_reduction_availability_reason: str | None = None
     assumptions: list[str] = Field(default_factory=list)
     constraints: list[str] = Field(default_factory=list)
     evidence_ids: list[str] = Field(default_factory=list)
@@ -182,6 +183,7 @@ class ScenarioGenerationRequest(BaseModel):
     objectives: list[str] = Field(default_factory=list)
     constraints: ScenarioConstraints = Field(default_factory=ScenarioConstraints)
     requested_interventions: list[str] = Field(default_factory=list)
+    implementation_period_years: float | None = Field(default=None, gt=0, allow_inf_nan=False)
     intervention_parameters: dict[str, dict[str, Any]] = Field(default_factory=dict)
     parameter_variants: dict[str, list[dict[str, Any]]] = Field(default_factory=dict)
     include_baseline: bool = True

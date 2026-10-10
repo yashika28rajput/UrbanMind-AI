@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from math import isfinite
+
 from app.phase11.schemas import SimulationResult
 from app.phase12.schemas import (
     OptimizationRequest,
@@ -11,11 +13,17 @@ from app.phase12.schemas import (
 
 def _metric_value(simulation: SimulationResult, name: str) -> float | None:
     metric = simulation.metrics.get(name)
-    return metric.simulated_value if metric else None
+    value = metric.simulated_value if metric else None
+    return value if value is not None and isfinite(value) else None
 
 
 def _score_candidate(simulation: SimulationResult, request: OptimizationRequest) -> ScenarioScore:
     values = {objective.name: _metric_value(simulation, objective.name) for objective in request.objectives}
+    sources = {
+        objective.name: simulation.metrics[objective.name].source_model
+        for objective in request.objectives
+        if objective.name in simulation.metrics
+    }
     missing_objectives = [name for name, value in values.items() if value is None]
     violations = []
     for constraint in request.constraints:
@@ -30,6 +38,7 @@ def _score_candidate(simulation: SimulationResult, request: OptimizationRequest)
         scenario_id=simulation.scenario_id,
         simulation_id=simulation.simulation_id,
         objective_values=values,
+        objective_sources=sources,
         feasible=not violations and not missing_objectives,
         constraint_violations=violations,
         missing_objectives=missing_objectives,
@@ -142,6 +151,14 @@ def run_optimization(request: OptimizationRequest) -> OptimizationResult:
             score.crowding_distance = distances[score.simulation_id]
             score.crowding_boundary = distances[score.simulation_id] is None
     pareto = fronts[0] if fronts else []
+    if pareto:
+        status = "completed"
+    elif not scores:
+        status = "no_candidates"
+    elif any(score.missing_objectives and not score.constraint_violations for score in scores):
+        status = "no_rankable_solutions"
+    else:
+        status = "no_feasible_solutions"
     decision_preferences = request.decision_preferences or {
         item.name: item.weight for item in request.objectives if item.weight is not None
     }
@@ -153,6 +170,7 @@ def run_optimization(request: OptimizationRequest) -> OptimizationResult:
             scenario_id=score.scenario_id,
             simulation_id=score.simulation_id,
             objective_values={name: value for name, value in score.objective_values.items() if value is not None},
+            objective_sources=score.objective_sources,
             constraint_violations=score.constraint_violations,
             pareto_rank=score.pareto_rank or 1,
             crowding_distance=score.crowding_distance,
@@ -162,12 +180,16 @@ def run_optimization(request: OptimizationRequest) -> OptimizationResult:
         for score in pareto
     ]
     return OptimizationResult(
-        status="completed" if pareto else "no_feasible_solutions",
+        status=status,
         objectives=request.objectives,
         constraints=request.constraints,
         pareto_solutions=solutions,
         dominated_strategies=[score for front in fronts[1:] for score in front],
-        infeasible_strategies=[score for score in scores if not score.feasible],
+        infeasible_strategies=[score for score in scores if score.constraint_violations],
+        unevaluable_strategies=[
+            score for score in scores
+            if score.missing_objectives and not score.constraint_violations
+        ],
         scores=scores,
         decision_preferences=decision_preferences,
     )
