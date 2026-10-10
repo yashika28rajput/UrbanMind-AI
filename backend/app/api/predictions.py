@@ -38,9 +38,26 @@ def _metadata_version(model_name: str) -> str:
     return str(info.get("version") or info.get("selected_model") or info.get("model_name") or info.get("model") or "unknown")
 
 
+# What kind of evidence stands behind each output. "trained_ml" means a fitted model artifact;
+# "rule_based_estimate" means a hand-written formula with fixed coefficients and NO training
+# data or validation behind it. Do not present the latter as a measured or learned prediction.
+_EVIDENCE_TYPE = {
+    "aqi": ("trained_ml", "Fitted on same-time pollutant readings that define the AQI target; reported accuracy "
+            "is not evidence of forecasting skill (see docs/AUDIT.md)."),
+    "uhi": ("trained_ml", "Single-city dataset (about 270 wards); small sample, spatial validation not performed."),
+    "green_cover": ("rule_based_estimate", "Fixed-coefficient formula on land-use shares; not validated against ground truth."),
+    "carbon": ("rule_based_estimate", "Fixed-coefficient formula; not a validated carbon model. Use POST /api/v1/carbon/calculate "
+               "with sourced emission factors for traceable accounting."),
+    "health_risk": ("rule_based_estimate", "Fixed-weight composite score; not an epidemiological model."),
+}
+
+
 def _wrap_prediction_response(model_name: str, result: dict[str, Any]) -> dict[str, Any]:
     prediction_value = result.get("predicted_value")
+    evidence_type, limitation = _EVIDENCE_TYPE.get(model_name, ("unknown", "No provenance information."))
     return {
+        "evidence_type": evidence_type,
+        "limitations": limitation,
         "prediction": prediction_value,
         "model": result.get("model_name", model_name),
         "model_version": _metadata_version(model_name),

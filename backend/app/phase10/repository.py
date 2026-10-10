@@ -4,10 +4,19 @@ from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, JSON, String, Text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.urban_memory_store import Base, SessionLocal, initialize_database
 from app.phase10.schemas import Scenario, ScenarioSet
+
+
+class ScenarioConflictError(RuntimeError):
+    """The scenario request or scenario version already exists (duplicate or concurrent write)."""
+
+
+class ScenarioParentMissingError(RuntimeError):
+    """A scenario version was written for a request that is not stored."""
 
 
 class ScenarioRequestRecord(Base):
@@ -74,10 +83,21 @@ def persist_scenario_set(scenario_set: ScenarioSet) -> None:
         )
         for item in scenario_set.scenarios
     ]
-    with SessionLocal() as session, session.begin():
-        session.add(request_record)
-        session.flush()
-        session.add_all(scenario_records)
+    try:
+        # One transaction: the parent request row is flushed before its children,
+        # and any failure rolls the whole set back.
+        with SessionLocal() as session, session.begin():
+            session.add(request_record)
+            session.flush()
+            session.add_all(scenario_records)
+    except IntegrityError as exc:
+        with SessionLocal() as session:
+            exists = session.get(ScenarioRequestRecord, scenario_set.request_id) is not None
+        if exists:
+            raise ScenarioConflictError(
+                f"Scenario request '{scenario_set.request_id}' is already stored."
+            ) from exc
+        raise
 
 
 def get_scenario(scenario_id: str, version: int | None = None) -> dict[str, Any] | None:
@@ -101,6 +121,10 @@ def get_scenario(scenario_id: str, version: int | None = None) -> dict[str, Any]
 def persist_scenario_version(request_id: str, scenario: Scenario) -> None:
     initialize_database()
     with SessionLocal() as session:
+        if session.get(ScenarioRequestRecord, request_id) is None:
+            raise ScenarioParentMissingError(
+                f"Scenario request '{request_id}' does not exist; cannot store a version for it."
+            )
         session.add(ScenarioRecord(
             scenario_id=scenario.scenario_id,
             request_id=request_id,
@@ -111,7 +135,14 @@ def persist_scenario_version(request_id: str, scenario: Scenario) -> None:
             status=scenario.status,
             scenario_data=scenario.model_dump(mode="json"),
         ))
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError as exc:
+            session.rollback()
+            raise ScenarioConflictError(
+                f"Version {scenario.scenario_version} of scenario '{scenario.scenario_id}' "
+                "already exists (possible concurrent update). Reload and retry."
+            ) from exc
 
 
 def list_scenarios(

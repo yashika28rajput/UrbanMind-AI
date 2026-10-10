@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -8,10 +9,13 @@ from pydantic import BaseModel, Field
 from app.federated.server import FEDERATED_STATUS, run_federated_simulation
 
 router = APIRouter(prefix="/api/v1", tags=["federated-learning"])
+logger = logging.getLogger(__name__)
 
 
 class FederatedRunRequest(BaseModel):
-    model_name: str = Field(default="aqi_model")
+    # Used to build a checkpoint directory name, so it must be a plain identifier
+    # (no path separators or "..").
+    model_name: str = Field(default="aqi_model", pattern=r"^[A-Za-z0-9_-]{1,64}$")
     num_rounds: int = Field(default=2, ge=1, le=20)
     num_clients: int = Field(default=3, ge=2, le=10)
     local_epochs: int = Field(default=1, ge=1, le=10)
@@ -28,7 +32,8 @@ async def start_federated_learning(request: FederatedRunRequest) -> dict[str, An
         )
         return result
     except Exception as exc:  # pragma: no cover - API guard
-        raise HTTPException(status_code=500, detail=f"Federated training failed: {exc}") from exc
+        logger.exception("Federated training failed")
+        raise HTTPException(status_code=500, detail="Federated training failed. See server logs.") from exc
 
 
 @router.get("/federated/status")
