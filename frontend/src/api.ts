@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type {
   AuthConfig,
+  AnnualWardCarbonResponse,
   CarbonScenarioRequest,
   CarbonScenarioResult,
   CitySummary,
@@ -41,6 +42,7 @@ export const requests = {
   wardGeojson: () => api.get<WardFeatureCollection>('/digital-twin/wards/geojson'),
   scenarios: () => api.get<{ scenarios: Scenario[] }>('/scenarios'),
   systemStatus: () => api.get<SystemStatus>('/system/status'),
+  annualWardCarbon: () => api.get<AnnualWardCarbonResponse>('/carbon/wards/annual'),
   generateScenarios: (payload: Record<string, unknown>) =>
     api.post<ScenarioSet>('/scenarios/generate', payload),
   calculateCarbonScenario: (payload: CarbonScenarioRequest) =>

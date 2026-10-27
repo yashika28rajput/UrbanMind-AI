@@ -206,6 +206,15 @@ tbody tr:last-child td { border-bottom: 0; }
 .twin-detail { align-self: start; }
 .twin-data-grid { border-top: 0; }
 .detail-note { display: flex; gap: 8px; align-items: start; margin-top: 15px; padding: 10px; border-radius: 7px; color: #788b70; background: #f4f8ef; font-size: 9px; line-height: 1.5; }
+.historical-carbon-panel { margin-top: 16px; padding: 14px; border: 1px solid #e4e9df; border-radius: 10px; background: #f8faf6; }
+.historical-carbon-heading h3 { margin: 4px 0 0; font-size: 14px; }
+.historical-carbon-value { display: flex; align-items: baseline; gap: 7px; margin-top: 12px; }
+.historical-carbon-value strong { color: #28352c; font-size: 22px; }
+.historical-carbon-value span, .historical-carbon-status, .historical-carbon-source { color: #758279; font-size: 10px; line-height: 1.5; }
+.historical-carbon-coverage { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; padding-top: 7px; border-top: 1px solid #e6eae3; color: #68766d; font-size: 10px; }
+.historical-carbon-status { margin: 9px 0 0; }
+.historical-carbon-source { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 9px; }
+.historical-carbon-source a { color: #648450; }
 .baseline-strip { display: grid; grid-template-columns: repeat(5, 1fr); }
 .baseline-strip .data-field { padding-left: 13px; border-left: 1px solid #edf0ec; }
 .baseline-strip .data-field:first-child { padding-left: 0; border-left: 0; }

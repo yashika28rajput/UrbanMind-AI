@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import {
   Activity, ArrowDownRight, BarChart3, BookOpen, Check, ChevronDown, Database,
@@ -12,7 +12,7 @@ import { errorMessage, formatMetric, requests } from './api'
 import type { MapMetric } from './components/CityMap'
 import DataManagementPage from './components/DataManagementPage'
 import type {
-  AuthConfig, CarbonScenarioRequest, CarbonScenarioResult, CitySummary, OptimizationResult, Scenario, ScenarioSet,
+  AnnualWardCarbonResponse, AuthConfig, CarbonScenarioRequest, CarbonScenarioResult, CitySummary, OptimizationResult, Scenario, ScenarioSet,
   SimulationResult, SystemStatus, Ward, WardFeatureCollection,
 } from './types'
 
@@ -114,6 +114,32 @@ function DataField({ label, value, unit = '', unavailableReason, digits = 1 }: {
   return <div className="data-field"><span>{label}</span><strong>{isAvailable ? `${formatMetric(value, digits)}${unit}` : 'Unavailable'}</strong>{!isAvailable && unavailableReason && <small className="data-field-reason">{unavailableReason}</small>}</div>
 }
 
+function HistoricalWardCarbon({ ward, result, error }: { ward: Ward | null; result: AnnualWardCarbonResponse | null; error: string }) {
+  const estimate = ward && result?.wards.find((item) => item.ward_id === ward.ward_no)
+  return (
+    <section className="historical-carbon-panel" aria-label="Modelled 2021 Road-Traffic CO2">
+      <div className="historical-carbon-heading"><div><span className="eyebrow">HISTORICAL ESTIMATE</span><h3>Modelled 2021 Road-Traffic CO2</h3></div></div>
+      {error ? <p className="historical-carbon-status" role="status">Ward carbon data unavailable: {error}</p> : !result ? <p className="historical-carbon-status" role="status">Loading historical ward estimate…</p> : (
+        <>
+          <div className="historical-carbon-value">
+            <strong>{estimate && typeof estimate.annual_co2_tonnes === 'number' ? formatMetric(estimate.annual_co2_tonnes, 2) : 'Unavailable'}</strong>
+            <span>{result.metadata.unit}</span>
+          </div>
+          {estimate && <div className="historical-carbon-coverage">
+            <span>{estimate.coverage_flag === 'PARTIAL_LT90%' ? 'Partial valid-area coverage' : estimate.coverage_flag === 'NO_COVERAGE' ? 'No valid-area coverage' : 'Adequate valid-area coverage'}</span>
+            <strong>{typeof estimate.valid_area_coverage_pct === 'number' ? `${formatMetric(estimate.valid_area_coverage_pct, 2)}%` : 'Unavailable'}</strong>
+          </div>}
+          {!estimate && ward && <p className="historical-carbon-status">No annual row matched ward ID {ward.ward_no}; estimate unavailable.</p>}
+          <p className="historical-carbon-status">{result.metadata.estimate_label}. This is modelled historical road-traffic CO2, not measured, current, or all-sector emissions.</p>
+          <p className="historical-carbon-status">{result.metadata.methodology_summary}</p>
+          <div className="historical-carbon-source"><a href={result.metadata.source_url} target="_blank" rel="noreferrer">{result.metadata.source_name}</a><span>Methodology: {result.metadata.methodology_file}</span></div>
+        </>
+      )}
+    </section>
+  )
+}
+
+
 function JsonResult({ value }: { value: unknown }) {
   if (!value) return null
   return <pre className="json-result">{JSON.stringify(value, null, 2)}</pre>
@@ -176,10 +202,12 @@ function Login({ config, onLogin }: { config: AuthConfig; onLogin: (token: strin
 }
 
 function Overview({
-  data, ward, onSelectWard, onNavigate,
+  data, ward, annualCarbon, annualCarbonError, onSelectWard, onNavigate,
 }: {
   data: PageData
   ward: Ward | null
+  annualCarbon: AnnualWardCarbonResponse | null
+  annualCarbonError: string
   onSelectWard: (number: number) => void
   onNavigate: (path: string) => void
 }) {
@@ -218,6 +246,7 @@ function Overview({
                 <DataField label="Population" value={ward.population} />
                 <DataField label="Health risk" value={ward.health_risk} />
               </div>
+              <HistoricalWardCarbon ward={ward} result={annualCarbon} error={annualCarbonError} />
               <button className="text-link" onClick={() => onNavigate('/city-twin')}>Open ward in City Twin <span>↗</span></button>
             </>
           ) : <EmptyState title="Ward data unavailable" detail="Connect to the backend Digital Twin to view ward-level data." />}
@@ -245,7 +274,7 @@ function Overview({
   )
 }
 
-function WardPage({ data, ward, onSelectWard }: { data: PageData; ward: Ward | null; onSelectWard: (number: number) => void }) {
+function WardPage({ data, ward, annualCarbon, annualCarbonError, onSelectWard }: { data: PageData; ward: Ward | null; annualCarbon: AnnualWardCarbonResponse | null; annualCarbonError: string; onSelectWard: (number: number) => void }) {
   const [layer, setLayer] = useState<MapMetric>('temperature')
   return (
     <div className="page-grid twin-layout">
@@ -262,6 +291,7 @@ function WardPage({ data, ward, onSelectWard }: { data: PageData; ward: Ward | n
               <DataField label="Population" value={ward.population} />
               <DataField label="Health risk" value={ward.health_risk} />
             </div>
+            <HistoricalWardCarbon ward={ward} result={annualCarbon} error={annualCarbonError} />
             <div className="detail-note"><Activity size={15} /> Values are provided by the Digital Twin API for this ward.</div>
           </> : <EmptyState title="Choose a map feature" detail="Select a ward polygon to inspect its urban state." />}
         </Panel>
@@ -1069,6 +1099,9 @@ function App() {
   const [authReady, setAuthReady] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
   const [data, setData] = useState<PageData>(emptyData)
+  const [annualCarbon, setAnnualCarbon] = useState<AnnualWardCarbonResponse | null>(null)
+  const [annualCarbonError, setAnnualCarbonError] = useState('')
+  const carbonRequestId = useRef(0)
   const [selectedWardNumber, setSelectedWardNumber] = useState<number | null>(null)
   const [simulations, setSimulations] = useState<SimulationResult[]>([])
   const [optimization, setOptimization] = useState<OptimizationResult | null>(null)
@@ -1106,7 +1139,22 @@ function App() {
     return () => { active = false }
   }, [])
 
+  const loadAnnualCarbon = useCallback(async () => {
+    const requestId = ++carbonRequestId.current
+    setAnnualCarbonError('')
+    try {
+      const response = await requests.annualWardCarbon()
+      if (requestId === carbonRequestId.current) setAnnualCarbon(response.data)
+    } catch (error) {
+      if (requestId === carbonRequestId.current) {
+        setAnnualCarbon(null)
+        setAnnualCarbonError(errorMessage(error))
+      }
+    }
+  }, [])
+
   const loadDashboard = useCallback(async (quiet = false) => {
+    void loadAnnualCarbon()
     if (!quiet) setLoading(true)
     setRefreshing(quiet)
     setDataError('')
@@ -1133,7 +1181,7 @@ function App() {
     }
     setLoading(false)
     setRefreshing(false)
-  }, [])
+  }, [loadAnnualCarbon])
 
   useEffect(() => {
     if (selectedWardNumber === null && data.wards.length) setSelectedWardNumber(data.wards[0].ward_no)
@@ -1212,8 +1260,8 @@ function App() {
           {loading ? <div className="loading-page"><span className="loading-spinner" />Loading urban intelligence…</div> : (
             <Routes>
               <Route path="/" element={<Navigate to="/overview" replace />} />
-              <Route path="/overview" element={<Overview data={data} ward={ward} onSelectWard={setSelectedWardNumber} onNavigate={navigate} />} />
-              <Route path="/city-twin" element={<WardPage data={data} ward={ward} onSelectWard={setSelectedWardNumber} />} />
+              <Route path="/overview" element={<Overview data={data} ward={ward} annualCarbon={annualCarbon} annualCarbonError={annualCarbonError} onSelectWard={setSelectedWardNumber} onNavigate={navigate} />} />
+              <Route path="/city-twin" element={<WardPage data={data} ward={ward} annualCarbon={annualCarbon} annualCarbonError={annualCarbonError} onSelectWard={setSelectedWardNumber} />} />
               <Route path="/scenarios" element={<ScenariosPage wards={data.wards} selectedWard={ward} scenarios={data.scenarios} onScenariosChanged={addScenarios} />} />
               <Route path="/data-management" element={<DataManagementPage wards={data.wards} />} />
               <Route path="/simulation" element={<SimulationPage scenarios={data.scenarios} ward={ward} simulations={simulations} onSimulation={addSimulation} />} />

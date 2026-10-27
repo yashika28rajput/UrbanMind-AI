@@ -139,6 +139,28 @@ export interface CarbonScenarioResult {
   }
 }
 
+export interface AnnualWardCarbonRecord {
+  ward_id: number
+  ward_name: string
+  annual_co2_tonnes: number | null
+  valid_area_coverage_pct: number | null
+  coverage_flag: 'ADEQUATE_GE90%' | 'PARTIAL_LT90%' | 'NO_COVERAGE'
+  contributing_grid_cells: number
+}
+
+export interface AnnualWardCarbonResponse {
+  metadata: {
+    estimate_label: 'MODELLED 2021 ROAD-TRAFFIC CO2'
+    year: 2021
+    unit: 'tonnes CO2/year'
+    source_name: string
+    source_url: string
+    methodology_file: string
+    methodology_summary: string
+  }
+  wards: AnnualWardCarbonRecord[]
+}
+
 export interface MetricDelta {
   baseline_value?: number | null
   simulated_value?: number | null

@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   wardGeojson: vi.fn(),
   scenarios: vi.fn(),
   systemStatus: vi.fn(),
+  annualWardCarbon: vi.fn(),
   generateScenarios: vi.fn(),
   calculateCarbonScenario: vi.fn(),
   simulateScenario: vi.fn(),
@@ -83,6 +84,18 @@ describe('UrbanMind dashboard', () => {
     mocks.wardGeojson.mockResolvedValue({ data: null })
     mocks.scenarios.mockResolvedValue({ data: { scenarios: [] } })
     mocks.systemStatus.mockResolvedValue({ data: status })
+    mocks.annualWardCarbon.mockResolvedValue({ data: {
+      metadata: {
+        estimate_label: 'MODELLED 2021 ROAD-TRAFFIC CO2',
+        year: 2021,
+        unit: 'tonnes CO2/year',
+        source_name: 'CHETNA-Road Delhi road-traffic emissions dataset',
+        source_url: 'https://doi.org/10.6084/m9.figshare.28330067.v2',
+        methodology_file: 'CHETNA_Road_Delhi_CO2_methodology.md',
+        methodology_summary: 'Fractional cell-polygon area allocation; NaN cells were not imputed.',
+      },
+      wards: [{ ward_id: 7, ward_name: 'Test Ward', annual_co2_tonnes: 123.456, valid_area_coverage_pct: 75, coverage_flag: 'PARTIAL_LT90%', contributing_grid_cells: 11 }],
+    } })
     mocks.generateScenarios.mockResolvedValue({
       data: {
         city: 'Delhi',
@@ -203,6 +216,26 @@ describe('UrbanMind dashboard', () => {
       problem_statement: 'Reduce heat exposure',
       implementation_period_years: 2.5,
     }))
+  })
+
+  it('shows the modelled historical ward estimate and coverage separately from Carbon Reduction', async () => {
+    renderDashboard()
+    expect(await screen.findByText('Modelled 2021 Road-Traffic CO2')).toBeInTheDocument()
+    expect(screen.getByText('123.46')).toBeInTheDocument()
+    expect(screen.getByText('75%')).toBeInTheDocument()
+    expect(screen.getByText('Partial valid-area coverage')).toBeInTheDocument()
+    expect(screen.getByText(/modelled historical road-traffic CO2, not measured, current, or all-sector emissions/i)).toBeInTheDocument()
+    expect(screen.getByText('Carbon reduction')).toBeInTheDocument()
+    expect(screen.getByText(/Carbon reduction is unavailable: the calibrated emissions inventory and factors are missing/i)).toBeInTheDocument()
+    expect(mocks.annualWardCarbon).toHaveBeenCalledOnce()
+  })
+
+  it('keeps historical carbon endpoint failures local to its panel', async () => {
+    mocks.annualWardCarbon.mockRejectedValue(new Error('Annual carbon endpoint unavailable'))
+    renderDashboard()
+    expect(await screen.findByText(/Ward carbon data unavailable: Annual carbon endpoint unavailable/i)).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByText('Air quality index')).toBeInTheDocument()
   })
 
   it('passes a planner schedule through simulation and explicitly optimizes execution time', async () => {
