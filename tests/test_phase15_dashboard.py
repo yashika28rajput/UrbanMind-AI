@@ -32,6 +32,7 @@ def test_system_status_reports_live_service_states(monkeypatch) -> None:
     assert payload["components"]["fastapi"]["status"] == "HEALTHY"
     assert payload["components"]["qdrant"]["status"] == "NOT_CONFIGURED"
     assert payload["components"]["rag"]["mode"] == "fallback"
+    assert payload["overall_status"] == "DEGRADED"
 
 
 def test_rag_health_identifies_fallback_mode(monkeypatch) -> None:
