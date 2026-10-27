@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
+from math import isfinite
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +16,23 @@ PROJECT_DIR = Path(__file__).resolve().parents[3]
 WARD_GEOJSON_PATH = (
     PROJECT_DIR / "data" / "processed" / "ml" / "environmental" / "delhi_ward_environmental_risk.geojson"
 )
+
+
+def _finite_number(value: Any) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    try:
+        number = float(value)
+    except (OverflowError, TypeError, ValueError):
+        return None
+    return number if isfinite(number) else None
+
+
+def _finite_difference(left: float | None, right: float | None) -> float | None:
+    if left is None or right is None:
+        return None
+    difference = left - right
+    return difference if isfinite(difference) else None
 
 
 @router.get("/summary")
@@ -102,20 +120,29 @@ async def digital_twin_state(request: dict[str, Any] | None = None) -> dict[str,
 async def digital_twin_simulate(request: dict[str, Any] | None = None) -> dict[str, Any]:
     model = get_virtual_city_model()
     payload = request or {}
-    baseline = payload.get("baseline_state") or model["summary"]
+    baseline = deepcopy(payload.get("baseline_state") or model["summary"])
+    metric_names = {"aqi", "temperature", "green_cover", "traffic_density", "health_risk", "population"}
+    for metric in metric_names & baseline.keys():
+        baseline[metric] = _finite_number(baseline[metric])
     simulated = deepcopy(baseline)
     adjustments = payload.get("adjustments") or {}
     for key, value in adjustments.items():
-        if isinstance(value, (int, float)) and key in simulated:
-            simulated[key] = float(simulated.get(key, 0.0)) + float(value)
+        if key in simulated:
+            current_value = _finite_number(simulated[key])
+            adjustment = _finite_number(value)
+            if current_value is None or adjustment is None:
+                continue
+            result = current_value + adjustment
+            if isfinite(result):
+                simulated[key] = result
     metric_changes = {
         metric: {
             "baseline": baseline.get(metric),
             "simulated": simulated.get(metric),
-            "delta": (simulated.get(metric) - baseline.get(metric)) if baseline.get(metric) is not None else None,
+            "delta": _finite_difference(simulated.get(metric), baseline.get(metric)),
         }
         for metric in sorted(set(baseline) | set(simulated))
-        if metric in {"aqi", "temperature", "green_cover", "traffic_density", "health_risk", "population"}
+        if metric in metric_names
     }
     return {
         "baseline_state": baseline,
