@@ -78,7 +78,13 @@ async def digital_twin_ward_geojson() -> dict[str, Any]:
             ward_number = int(properties["Ward_No"])
         except (KeyError, TypeError, ValueError):
             continue
-        properties.update(metrics.get(ward_number, {}))
+        ward_metrics = metrics.get(ward_number, {})
+        properties.update(ward_metrics)
+        # CityMap reads these legacy GeoJSON names for its AQI and temperature
+        # layers, while the Digital Twin API exposes the canonical metric names.
+        for map_field, twin_field in (("final_AQI", "aqi"), ("mean_LST_C", "temperature")):
+            if twin_field in ward_metrics:
+                properties[map_field] = ward_metrics[twin_field]
         feature["properties"] = properties
     feature_collection["features"] = features
     return feature_collection
