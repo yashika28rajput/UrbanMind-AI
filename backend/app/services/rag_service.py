@@ -267,27 +267,10 @@ class RAGService:
         if not title or not text.strip():
             raise ValueError("Document title and text must not be empty")
 
-        document_key = document_id
-        self._documents[document_key] = {
-            "document_id": document_id,
-            "title": title,
-            "source": source,
-            "url": url or source_url,
-            "document_type": document_type,
-            "city": city,
-            "zone": zone,
-            "topic": topic,
-            "pollutant": pollutant,
-            "intervention": intervention,
-            "policy": policy,
-            "health_impact": health_impact,
-            "page_number": page_number,
-            "metadata": metadata or {},
-        }
-
         norm_text = text.strip()
         chunk_strings = self._chunk_text(norm_text)
         created_chunks: list[dict[str, Any]] = []
+        replacement_chunks: list[DocumentChunk] = []
         for index, chunk_text in enumerate(chunk_strings):
             chunk_id = hashlib.sha1(f"{document_id}:{index}:{chunk_text}".encode("utf-8")).hexdigest()[:24]
             payload = {
@@ -310,7 +293,7 @@ class RAGService:
             }
             chunk = DocumentChunk(**payload)
             chunk.vector = self._vectorize(chunk_text)
-            self._chunks.append(chunk)
+            replacement_chunks.append(chunk)
             created_chunks.append({
                 "document_id": chunk.document_id,
                 "chunk_id": chunk.chunk_id,
@@ -320,12 +303,44 @@ class RAGService:
                 "score": 1.0,
                 "text": chunk.text,
             })
+
+        previous_chunks = [chunk for chunk in self._chunks if chunk.document_id == document_id]
+        if self._qdrant_client is not None and self._qdrant_synced and previous_chunks:
+            previous_point_ids = [
+                uuid.uuid5(uuid.NAMESPACE_URL, chunk.chunk_id).hex
+                for chunk in previous_chunks
+            ]
+            self._qdrant_client.delete(
+                collection_name=settings.QDRANT_COLLECTION_NAME,
+                points_selector=previous_point_ids,
+                wait=True,
+            )
+
+        document_key = document_id
+        self._documents[document_key] = {
+            "document_id": document_id,
+            "title": title,
+            "source": source,
+            "url": url or source_url,
+            "document_type": document_type,
+            "city": city,
+            "zone": zone,
+            "topic": topic,
+            "pollutant": pollutant,
+            "intervention": intervention,
+            "policy": policy,
+            "health_impact": health_impact,
+            "page_number": page_number,
+            "metadata": metadata or {},
+        }
+        self._chunks = [
+            chunk for chunk in self._chunks
+            if chunk.document_id != document_id
+        ] + replacement_chunks
+
         if self._qdrant_client is not None and self._qdrant_synced:
             try:
-                self._upsert_chunks(
-                    self._qdrant_client,
-                    [chunk for chunk in self._chunks if chunk.document_id == document_id],
-                )
+                self._upsert_chunks(self._qdrant_client, replacement_chunks)
             except QDRANT_ERRORS as exc:
                 self._qdrant_error = str(exc)
                 logger.exception("Could not persist RAG chunks to Qdrant")
