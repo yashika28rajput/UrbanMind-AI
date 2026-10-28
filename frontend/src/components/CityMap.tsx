@@ -11,7 +11,7 @@ const layers: Array<{ key: MapMetric; label: string; field: string; unit: string
   { key: 'aqi', label: 'AQI', field: 'final_AQI', unit: 'AQI', name: 'Air quality' },
   { key: 'temperature', label: 'UHI', field: 'mean_LST_C', unit: '°C', name: 'Surface temperature' },
   { key: 'green_cover', label: 'Green', field: 'green_cover', unit: '%', name: 'Green cover' },
-  { key: 'health_risk', label: 'Health', field: 'health_risk', unit: '', name: 'Health risk' },
+  { key: 'health_risk', label: 'Health', field: 'health_risk', unit: 'score (0–1)', name: 'Composite health-risk score' },
   { key: 'population', label: 'Exposure', field: 'population', unit: 'people', name: 'Population exposure' },
 ]
 

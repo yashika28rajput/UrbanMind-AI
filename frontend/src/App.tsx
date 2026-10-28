@@ -12,7 +12,8 @@ import { errorMessage, formatMetric, requests } from './api'
 import type { MapMetric } from './components/CityMap'
 import DataManagementPage from './components/DataManagementPage'
 import type {
-  AnnualWardCarbonResponse, AuthConfig, CarbonScenarioRequest, CarbonScenarioResult, CitySummary, OptimizationResult, Scenario, ScenarioSet,
+  AnnualWardCarbonResponse, AuthConfig, CarbonActivityInput, CarbonCalculationRequest, CarbonCalculationResult,
+  CarbonScenarioRequest, CarbonScenarioResult, CitySummary, OptimizationResult, Scenario, ScenarioSet,
   SimulationResult, SystemStatus, Ward, WardFeatureCollection,
 } from './types'
 
@@ -111,7 +112,7 @@ function MetricCard({
 
 function DataField({ label, value, unit = '', unavailableReason, digits = 1 }: { label: string; value: unknown; unit?: string; unavailableReason?: string | null; digits?: number }) {
   const isAvailable = typeof value === 'number' && Number.isFinite(value)
-  return <div className="data-field"><span>{label}</span><strong>{isAvailable ? `${formatMetric(value, digits)}${unit}` : 'Unavailable'}</strong>{!isAvailable && unavailableReason && <small className="data-field-reason">{unavailableReason}</small>}</div>
+  return <div className="data-field"><span>{label}</span><strong>{isAvailable ? `${formatMetric(value, digits)}${unit}` : 'Unavailable'}</strong>{!isAvailable && <small className="data-field-reason">{unavailableReason ?? 'No valid numeric value was supplied for this metric.'}</small>}</div>
 }
 
 function HistoricalWardCarbon({ ward, result, error }: { ward: Ward | null; result: AnnualWardCarbonResponse | null; error: string }) {
@@ -138,7 +139,6 @@ function HistoricalWardCarbon({ ward, result, error }: { ward: Ward | null; resu
     </section>
   )
 }
-
 
 function JsonResult({ value }: { value: unknown }) {
   if (!value) return null
@@ -212,16 +212,19 @@ function Overview({
   onNavigate: (path: string) => void
 }) {
   const [layer, setLayer] = useState<MapMetric>('aqi')
-  const population = data.wards.reduce((total, item) => total + (item.population ?? 0), 0)
+  const populationValues = data.wards
+    .map((item) => item.population)
+    .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+  const population = populationValues.length ? populationValues.reduce((total, value) => total + value, 0) : null
   const summary = data.summary
 
   return (
     <div className="page-grid overview-grid">
       <div className="metric-grid">
-        <MetricCard label="Air quality index" value={formatMetric(summary?.average_aqi, 0)} icon={Wind} accent="coral" note="Mean across mapped wards" />
-        <MetricCard label="Surface temperature" value={formatMetric(summary?.average_temperature_c)} unit="°C" icon={Thermometer} accent="amber" note="Mean land surface temperature" />
+        <MetricCard label="Air quality index" value={formatMetric(summary?.average_aqi, 0)} icon={Wind} accent="coral" note={summary?.average_aqi == null ? 'No valid ward AQI observations are available' : 'Mean across mapped wards'} />
+        <MetricCard label="Surface temperature" value={formatMetric(summary?.average_temperature_c)} unit="°C" icon={Thermometer} accent="amber" note={summary?.average_temperature_c == null ? 'No valid ward temperature observations are available' : 'Mean land surface temperature'} />
         <MetricCard label="Green cover" value={formatMetric(summary?.average_green_cover_pct)} unit="%" icon={Leaf} accent="mint" note="Digital Twin estimate" />
-        <MetricCard label="Health risk" value={formatMetric(summary?.average_health_risk, 2)} icon={Activity} accent="violet" note="Mean exposure score" />
+        <MetricCard label="Health risk" value={formatMetric(summary?.average_health_risk, 2)} icon={Activity} accent="violet" note="Normalized composite exposure score (0–1)" />
         <MetricCard
           label="Carbon reduction"
           value="Unavailable"
@@ -229,7 +232,7 @@ function Overview({
           accent="blue"
           note={data.summary?.carbon_reduction_availability_reason ?? 'No validated city-wide tCO2e estimate'}
         />
-        <MetricCard label="Population represented" value={population ? formatMetric(population, 0) : 'Unavailable'} icon={MapIcon} accent="slate" note={data.wards.length ? `${data.wards.length} wards in the Digital Twin` : 'Ward population unavailable'} />
+        <MetricCard label="Population represented" value={population === null ? 'Unavailable' : formatMetric(population, 0)} icon={MapIcon} accent="slate" note={population === null ? 'No valid ward population values are available' : `${data.wards.length} wards in the Digital Twin`} />
       </div>
 
       <div className="overview-main-grid">
@@ -244,7 +247,7 @@ function Overview({
                 <DataField label="Green cover" value={ward.green_cover} unit="%" />
                 <DataField label="Traffic index" value={ward.traffic_density} />
                 <DataField label="Population" value={ward.population} />
-                <DataField label="Health risk" value={ward.health_risk} />
+                <DataField label="Composite health-risk score" value={ward.health_risk} unit=" (0–1)" />
               </div>
               <HistoricalWardCarbon ward={ward} result={annualCarbon} error={annualCarbonError} />
               <button className="text-link" onClick={() => onNavigate('/city-twin')}>Open ward in City Twin <span>↗</span></button>
@@ -257,7 +260,7 @@ function Overview({
         <Panel title="Scenario comparison" eyebrow="INTERVENTIONS" action={<button className="text-link" onClick={() => onNavigate('/scenarios')}>Scenario lab <span>↗</span></button>} className="scenario-preview">
           {data.scenarios.length ? (
             <div className="table-scroll"><table><thead><tr><th>Scenario</th><th>Status</th><th>AQI impact</th><th>Green cover</th><th>Carbon</th></tr></thead><tbody>
-              {data.scenarios.slice(0, 4).map((scenario) => <tr key={scenario.scenario_id}><td><strong>{scenario.name}</strong><small>{scenario.scenario_id}</small></td><td><StatusPill status={scenario.status} /></td><td>{formatMetric(scenario.expected_impacts?.expected_aqi_change)}</td><td>{formatMetric(scenario.expected_impacts?.expected_green_cover_change)}%</td><td>{formatMetric(scenario.expected_impacts?.expected_carbon_reduction)}</td></tr>)}
+              {data.scenarios.slice(0, 4).map((scenario) => <tr key={scenario.scenario_id}><td><strong>{scenario.name}</strong><small>{scenario.scenario_id}</small></td><td><StatusPill status={scenario.status} /></td><td>{formatMetric(scenario.expected_impacts?.expected_aqi_change)}{scenario.expected_impacts?.expected_aqi_change == null && <small>No provenance-backed AQI impact estimate is available.</small>}</td><td>{formatMetric(scenario.expected_impacts?.expected_green_cover_change)}%</td><td>{formatMetric(scenario.expected_impacts?.expected_carbon_reduction)}{scenario.expected_impacts?.expected_carbon_reduction == null && <small>{scenario.carbon_reduction_availability_reason ?? 'No provenance-backed carbon reduction estimate is available.'}</small>}</td></tr>)}
             </tbody></table></div>
           ) : <EmptyState title="No scenarios yet" detail="Generate intervention scenarios to compare evidence-backed outcomes." />}
         </Panel>
@@ -289,7 +292,7 @@ function WardPage({ data, ward, annualCarbon, annualCarbonError, onSelectWard }:
               <DataField label="Green cover" value={ward.green_cover} unit="%" />
               <DataField label="Traffic index" value={ward.traffic_density} />
               <DataField label="Population" value={ward.population} />
-              <DataField label="Health risk" value={ward.health_risk} />
+              <DataField label="Composite health-risk score" value={ward.health_risk} unit=" (0–1)" />
             </div>
             <HistoricalWardCarbon ward={ward} result={annualCarbon} error={annualCarbonError} />
             <div className="detail-note"><Activity size={15} /> Values are provided by the Digital Twin API for this ward.</div>
@@ -387,6 +390,7 @@ function ScenariosPage({
         </Panel>
       </div>
       <CarbonScenarioForm />
+      <ActivityCarbonCalculator />
       <Panel title="Candidate scenarios" eyebrow={`${allScenarios.length} AVAILABLE`} className="scenario-results">
         {allScenarios.length ? <div className="scenario-card-grid">{allScenarios.map((item) => <ScenarioCard key={item.scenario_id} scenario={item} />)}</div> : <EmptyState title="No generated scenarios" detail="Submit a problem statement to create backend-generated candidate interventions." />}
       </Panel>
@@ -396,24 +400,31 @@ function ScenariosPage({
 
 function ScenarioCard({ scenario }: { scenario: Scenario }) {
   const impacts = scenario.expected_impacts
+  const missingImpactReason = 'No provenance-backed impact estimate or complete validated prediction input was supplied.'
   return (
     <article className="scenario-card">
       <div className="scenario-card-top"><span className="scenario-mark"><Leaf size={17} /></span><StatusPill status={scenario.status} /></div>
       <h3>{scenario.name}</h3>
       <p>{scenario.description || 'No description provided by the scenario service.'}</p>
       <div className="scenario-card-metrics">
-        <DataField label="Estimated cost" value={scenario.estimated_cost?.total_estimated_cost} />
-        <DataField label="AQI change" value={impacts?.expected_aqi_change} />
-        <DataField label="UHI change" value={impacts?.expected_uhi_change} />
-        <DataField label="Green cover" value={impacts?.expected_green_cover_change} unit="%" />
+        <DataField
+          label="Estimated cost"
+          value={scenario.estimated_cost?.total_estimated_cost}
+          unit={scenario.estimated_cost?.currency ? ` ${scenario.estimated_cost.currency}` : ''}
+          unavailableReason={scenario.estimated_cost ? 'The scenario cost estimate has no total amount.' : 'No provenance-backed cost estimate is available; this intervention has no configured cost model.'}
+          digits={0}
+        />
+        <DataField label="AQI change" value={impacts?.expected_aqi_change} unit={` ${impacts?.units?.aqi ?? 'AQI points'}`} unavailableReason={missingImpactReason} />
+        <DataField label="UHI change" value={impacts?.expected_uhi_change} unit={` ${impacts?.units?.temperature ?? '°C'}`} unavailableReason={missingImpactReason} />
+        <DataField label="Green cover" value={impacts?.expected_green_cover_change} unit={` ${impacts?.units?.green_cover ?? '%'}`} unavailableReason={missingImpactReason} />
         <DataField
           label="Carbon reduction"
           value={impacts?.expected_carbon_reduction}
-          unit=" tCO₂e/year"
-          unavailableReason={scenario.carbon_reduction_availability_reason}
+          unit={` ${impacts?.units?.carbon_impact ?? 'tCO₂e/year'}`}
+          unavailableReason={scenario.carbon_reduction_availability_reason ?? 'No provenance-backed carbon reduction estimate is available.'}
           digits={2}
         />
-        <DataField label="Health risk change" value={impacts?.expected_health_risk_change} />
+        <DataField label="Composite health-risk score change" value={impacts?.expected_health_risk_change} unit=" (0–1)" unavailableReason={missingImpactReason} />
       </div>
       <div className="scenario-card-foot"><span>{scenario.scenario_id}</span><span>Ward: {scenario.zone || 'City-wide'}</span></div>
     </article>
@@ -689,6 +700,151 @@ function CarbonScenarioForm() {
   )
 }
 
+type CarbonActivityValues = {
+  name: string
+  quantity: string
+  quantity_unit: string
+  period: 'day' | 'month' | 'year'
+  emission_factor_kgco2e_per_unit: string
+  factor_source: string
+}
+
+const emptyCarbonActivity = (): CarbonActivityValues => ({
+  name: '', quantity: '', quantity_unit: '', period: 'year',
+  emission_factor_kgco2e_per_unit: '', factor_source: '',
+})
+
+function ActivityCarbonCalculator() {
+  const [baseline, setBaseline] = useState<CarbonActivityValues[]>([emptyCarbonActivity()])
+  const [projected, setProjected] = useState<CarbonActivityValues[]>([emptyCarbonActivity()])
+  const [result, setResult] = useState<CarbonCalculationResult | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  const updateActivity = (
+    side: 'baseline' | 'projected', index: number, key: keyof CarbonActivityValues, value: string,
+  ) => {
+    const setter = side === 'baseline' ? setBaseline : setProjected
+    setter((rows) => rows.map((row, rowIndex) => rowIndex === index ? { ...row, [key]: value } : row))
+    setResult(null)
+    setError('')
+  }
+
+  const parseActivities = (rows: CarbonActivityValues[], side: string): CarbonActivityInput[] => rows.map((row, index) => {
+    const quantity = Number(row.quantity)
+    const factor = Number(row.emission_factor_kgco2e_per_unit)
+    if (!row.name.trim() || !row.quantity_unit.trim() || !row.factor_source.trim()) {
+      throw new Error(`${side} activity ${index + 1} needs a name, unit, and emission-factor source.`)
+    }
+    if (!row.quantity.trim() || !row.emission_factor_kgco2e_per_unit.trim()) {
+      throw new Error(`${side} activity ${index + 1} needs both a quantity and an emission factor; enter 0 explicitly when appropriate.`)
+    }
+    if (!Number.isFinite(quantity) || quantity < 0 || !Number.isFinite(factor) || factor < 0) {
+      throw new Error(`${side} activity ${index + 1} needs finite, non-negative quantity and factor values.`)
+    }
+    if (row.factor_source.trim().length < 3) {
+      throw new Error(`${side} activity ${index + 1} needs a source reference of at least 3 characters.`)
+    }
+    return {
+      name: row.name.trim(),
+      quantity,
+      quantity_unit: row.quantity_unit.trim(),
+      period: row.period,
+      emission_factor_kgco2e_per_unit: factor,
+      factor_source: row.factor_source.trim(),
+    }
+  })
+
+  const calculate = async (event: FormEvent) => {
+    event.preventDefault()
+    setError('')
+    let payload: CarbonCalculationRequest
+    try {
+      payload = {
+        baseline: parseActivities(baseline, 'Baseline'),
+        projected: parseActivities(projected, 'Projected'),
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Enter complete activity and factor provenance.')
+      return
+    }
+    setBusy(true)
+    try {
+      setResult((await requests.calculateCarbon(payload)).data)
+    } catch (cause) {
+      setError(errorMessage(cause))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const renderActivities = (side: 'baseline' | 'projected', rows: CarbonActivityValues[]) => (
+    <section className="activity-carbon-side" aria-label={`${side} activities`}>
+      <div className="activity-carbon-heading"><h3>{side === 'baseline' ? 'Baseline activities' : 'Projected activities'}</h3>
+        <button className="button button-secondary" type="button" onClick={() => {
+          (side === 'baseline' ? setBaseline : setProjected)((current) => [...current, emptyCarbonActivity()])
+          setResult(null)
+        }}>Add activity</button>
+      </div>
+      {rows.map((row, index) => <fieldset className="activity-carbon-row" key={`${side}-${index}`}>
+        <legend>Activity {index + 1}</legend>
+        <label>Activity name<input required value={row.name} onChange={(event) => updateActivity(side, index, 'name', event.target.value)} placeholder="e.g. grid electricity" /></label>
+        <label>Quantity<input required type="number" min="0" step="any" value={row.quantity} onChange={(event) => updateActivity(side, index, 'quantity', event.target.value)} /></label>
+        <label>Quantity unit<input required value={row.quantity_unit} onChange={(event) => updateActivity(side, index, 'quantity_unit', event.target.value)} placeholder="e.g. kWh" /></label>
+        <label>Reporting period<select value={row.period} onChange={(event) => updateActivity(side, index, 'period', event.target.value as CarbonActivityValues['period'])}>
+          <option value="day">Per day</option><option value="month">Per month</option><option value="year">Per year</option>
+        </select></label>
+        <label>Emission factor <span className="label-hint">kg CO₂e / {row.quantity_unit || 'unit'}</span>
+          <input required type="number" min="0" step="any" value={row.emission_factor_kgco2e_per_unit} onChange={(event) => updateActivity(side, index, 'emission_factor_kgco2e_per_unit', event.target.value)} /></label>
+        <label>Emission factor source / reference<input required minLength={3} value={row.factor_source} onChange={(event) => updateActivity(side, index, 'factor_source', event.target.value)} placeholder="Publisher, table, year, or URL" /></label>
+        {rows.length > 1 && <button className="button button-secondary" type="button" onClick={() => {
+          (side === 'baseline' ? setBaseline : setProjected)((current) => current.filter((_, rowIndex) => rowIndex !== index))
+          setResult(null)
+        }}>Remove activity</button>}
+      </fieldset>)}
+    </section>
+  )
+
+  return (
+    <Panel title="Activity-based Carbon Calculation" eyebrow="SOURCE-REQUIRED · CO₂e" className="carbon-scenario-panel">
+      <div className="carbon-demo-notice"><strong>User-supplied assumptions</strong>
+        <span>No activity, period, or emission factor is prefilled. Add sourced quantities and factors for both cases; results are calculations from those inputs, not measured outcomes or Delhi estimates.</span></div>
+      <form className="activity-carbon-form" data-testid="activity-carbon-form" onSubmit={calculate}>
+        {renderActivities('baseline', baseline)}
+        {renderActivities('projected', projected)}
+        <p className="carbon-form-note">Daily and monthly quantities are annualized by the backend. Match activity names and units across cases when comparing the same activity. Each emission factor needs a source or reference.</p>
+        {error && <InlineError message={error} />}
+        <button className="button button-primary" disabled={busy}>{busy ? 'Calculating…' : 'Calculate CO₂e'}</button>
+      </form>
+      {result && <section className="carbon-result" aria-live="polite" data-testid="activity-carbon-result">
+        <div className="carbon-result-heading"><div><span className="eyebrow">CALCULATED FROM USER-SUPPLIED INPUTS</span><h3>Annual emissions comparison</h3></div>
+          <span className="carbon-result-badge simulated">{result.direction.replace('_', ' ').toUpperCase()}</span></div>
+        <div className="carbon-result-grid">
+          <DataField label="Baseline emissions" value={result.baseline_emissions_kgco2e_per_year} unit={` ${result.unit}`} digits={2} />
+          <DataField label="Projected emissions" value={result.projected_emissions_kgco2e_per_year} unit={` ${result.unit}`} digits={2} />
+          <DataField label="Reduction (baseline − projected)" value={result.reduction_kgco2e_per_year} unit={` ${result.unit}`} digits={2} />
+          <DataField label="Reduction percentage" value={result.reduction_percent} unit={result.reduction_percent === null ? '' : '%'} digits={2} unavailableReason={result.reduction_percent_note ?? undefined} />
+        </div>
+        <div className="carbon-provenance">
+          <span>Baseline factors: {result.baseline_line_items.map((item) => `${item.name} — ${item.factor_source}`).join(' · ')}</span>
+          <span>Projected factors: {result.projected_line_items.map((item) => `${item.name} — ${item.factor_source}`).join(' · ')}</span>
+          {result.warnings.map((warning) => <span key={warning}>{warning}</span>)}
+        </div>
+        <details className="carbon-method">
+          <summary>Annualized activity and factor details</summary>
+          {([['Baseline', result.baseline_line_items], ['Projected', result.projected_line_items]] as const).map(([label, items]) => <section key={label}>
+            <h4>{label}</h4>
+            {items.map((item, index) => <p key={`${item.name}-${index}`}>
+              {item.name}: {formatMetric(item.annual_quantity, 3)} {item.quantity_unit}/year × {formatMetric(item.emission_factor_kgco2e_per_unit, 5)} kgCO₂e/{item.quantity_unit} = {formatMetric(item.annual_emissions_kgco2e, 3)} kgCO₂e/year. Source: {item.factor_source}
+            </p>)}
+          </section>)}
+          {result.reduction_percent_note && <p>{result.reduction_percent_note}</p>}
+        </details>
+      </section>}
+    </Panel>
+  )
+}
+
 function SimulationPage({
   scenarios, ward, simulations, onSimulation,
 }: {
@@ -702,6 +858,7 @@ function SimulationPage({
   const [error, setError] = useState('')
   const [savedSimulationId, setSavedSimulationId] = useState('')
   const scenario = scenarios.find((item) => item.scenario_id === scenarioId)
+  const candidateScenarios = scenarios.filter((item) => !item.provenance?.carbon_scenario_result)
   const run = async () => {
     if (!scenario) return
     setError('')
@@ -738,9 +895,9 @@ function SimulationPage({
   const latest = simulations[0]
   const metricLabels: Record<string, string> = {
     aqi: 'Air quality index', temperature: 'Surface temperature', green_cover: 'Green cover',
-    health_risk: 'Health risk', carbon_emissions: 'Carbon emissions', carbon_impact: 'Carbon impact',
+    health_risk: 'Composite health-risk score', carbon_emissions: 'Carbon emissions', carbon_impact: 'Carbon impact',
     execution_time: 'Implementation duration',
-    population_exposure: 'Population exposure', health_benefit: 'Health benefit', cost: 'Cost',
+    population_exposure: 'Population exposure', health_benefit: 'Inverse composite health-risk score', cost: 'Cost',
   }
 
   return (
@@ -748,7 +905,7 @@ function SimulationPage({
       <div className="page-intro"><span className="eyebrow">PHASE 11 · DIGITAL TWIN SIMULATION</span><h2>Model the intervention.</h2><p>Compare backend-calculated baseline and simulated states. Metrics not supplied by the simulation engine are shown as unavailable.</p></div>
       <Panel title="Run a simulation" eyebrow="SCENARIO STATE" className="simulation-controls">
         <div className="simulation-run-row">
-          <label className="select-label">Candidate scenario<select value={scenarioId} onChange={(event) => setScenarioId(event.target.value)}><option value="">Select a generated scenario</option>{scenarios.map((item) => <option key={item.scenario_id} value={item.scenario_id}>{item.name} · {item.scenario_id}</option>)}</select></label>
+          <label className="select-label">Candidate scenario<select value={scenarioId} onChange={(event) => setScenarioId(event.target.value)}><option value="">Select a generated scenario</option>{candidateScenarios.map((item) => <option key={item.scenario_id} value={item.scenario_id}>{item.name} · {item.scenario_id}</option>)}</select></label>
           <div className="simulation-baseline"><span>Baseline state</span><strong>{ward?.location ?? 'City-level Digital Twin'}</strong><small>Resolved by the simulation service</small></div>
           <button className="button button-primary" onClick={run} disabled={!scenario || busy}>{busy ? 'Running…' : 'Run simulation'} <span>↗</span></button>
         </div>
@@ -768,7 +925,18 @@ function SimulationPage({
                 const baseline = typeof metric.baseline_value === 'number' ? `${formatMetric(metric.baseline_value)}${unit}` : 'Unavailable'
                 const simulated = typeof metric.simulated_value === 'number' ? `${formatMetric(metric.simulated_value)}${unit}` : 'Unavailable'
                 const delta = typeof metric.absolute_delta === 'number' ? `${metric.absolute_delta > 0 ? '+' : ''}${formatMetric(metric.absolute_delta)}${unit}` : 'Unavailable'
-                return <tr key={key}><td><strong>{metricLabels[key] ?? key.replaceAll('_', ' ')}</strong>{metric.availability && metric.availability !== 'available' && <small>{metric.availability_reason ?? metric.availability}</small>}{key === 'execution_time' && metric.availability === 'available' && metric.source_model && <small>{metric.source_model}</small>}</td><td>{baseline}</td><td>{simulated}</td><td className={metric.absolute_delta && metric.absolute_delta < 0 ? 'positive-delta' : ''}>{delta}</td></tr>
+                const missingReason = metric.availability_reason ?? (
+                  metric.simulated_value == null
+                    ? 'No validated simulated value is available for the required inputs.'
+                    : metric.baseline_value == null && metric.absolute_delta == null
+                      ? key === 'cost'
+                        ? 'A baseline cost was not supplied; only the scenario cost estimate is available.'
+                        : key === 'carbon_impact' || key === 'carbon_emissions'
+                          ? 'A baseline emissions inventory was not supplied; the change cannot be calculated.'
+                          : 'A Digital Twin baseline value was not supplied; the change cannot be calculated.'
+                      : null
+                )
+                return <tr key={key}><td><strong>{metricLabels[key] ?? key.replaceAll('_', ' ')}</strong>{missingReason && <small>{missingReason}</small>}{key === 'execution_time' && metric.availability === 'available' && metric.source_model && <small>{metric.source_model}</small>}</td><td>{baseline}</td><td>{simulated}</td><td className={metric.absolute_delta != null && metric.absolute_delta < 0 ? 'positive-delta' : ''}>{delta}</td></tr>
               })}
             </tbody></table></div>
           </Panel>

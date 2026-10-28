@@ -10,9 +10,11 @@ def _normalize_location(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.casefold())
 
 
-def _digital_twin_baseline(city: str, zone: str | None) -> tuple[dict[str, float], str]:
+def _digital_twin_baseline(
+    city: str, zone: str | None,
+) -> tuple[dict[str, float], str, dict[str, str]]:
     if city.strip().casefold() != "delhi":
-        return {}, ""
+        return {}, "", {}
 
     model = get_virtual_city_model()
     if zone:
@@ -31,17 +33,29 @@ def _digital_twin_baseline(city: str, zone: str | None) -> tuple[dict[str, float
                 matched_ward = ward
                 break
         if matched_ward is None:
-            return {}, ""
+            return {}, "", {}
         source = (
             "Phase 5 Digital Twin "
             f"({matched_ward.get('location', matched_ward.get('zone', 'ward'))}, "
             f"{matched_ward.get('zone', 'ward')})"
         )
-        return {
+        baseline = {
             key: float(matched_ward[key])
             for key in ("aqi", "temperature", "green_cover", "health_risk")
             if matched_ward.get(key) is not None
-        }, source
+        }
+        metric_provenance = matched_ward.get("metric_provenance") or {}
+        sources = {
+            metric: (
+                f"{source}; {provenance['data_classification']} environmental observation "
+                f"{provenance['record_id']} from {provenance['source_name']} "
+                f"({provenance['observation_date']})"
+                + (f", reference {provenance['source_reference']}" if provenance.get("source_reference") else "")
+            )
+            for metric, provenance in metric_provenance.items()
+            if metric in baseline
+        }
+        return baseline, source, sources
 
     summary = model.get("summary", {})
     source = "Phase 5 Digital Twin Delhi city summary"
@@ -51,17 +65,18 @@ def _digital_twin_baseline(city: str, zone: str | None) -> tuple[dict[str, float
         "green_cover": "average_green_cover_pct",
         "health_risk": "average_health_risk",
     }
-    return {
+    baseline = {
         metric: float(summary[field])
         for metric, field in summary_fields.items()
         if summary.get(field) is not None
-    }, source
+    }
+    return baseline, source, {}
 
 
 def adapt_simulation_request(request: SimulationRequest) -> SimulationRequest:
     """Fill missing baseline fields from a matching Phase 5 Delhi Digital Twin record."""
     inputs = request.simulation_input
-    baseline, source = _digital_twin_baseline(
+    baseline, source, metric_sources = _digital_twin_baseline(
         request.scenario.city or request.urban_state.request.city,
         request.scenario.zone or request.urban_state.request.zone,
     )
@@ -73,7 +88,7 @@ def adapt_simulation_request(request: SimulationRequest) -> SimulationRequest:
     for metric in inputs.baseline_metrics:
         sources.setdefault(metric, "SimulationInput baseline")
     for metric in baseline:
-        sources.setdefault(metric, source)
+        sources.setdefault(metric, metric_sources.get(metric, source))
     adapted_inputs = inputs.model_copy(update={
         "baseline_metrics": merged_baseline,
         "baseline_sources": sources,

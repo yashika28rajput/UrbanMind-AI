@@ -24,14 +24,17 @@ from app.phase11.schemas import (
 from app.services import prediction_service
 from app.services.prediction_service import CARBON_REDUCTION_UNAVAILABLE_REASON
 
+HEALTH_RISK_UNIT = "composite score (0–1)"
+HEALTH_RISK_MODEL_SCALE = 100.0
+
 METRIC_SPECS = {
     "aqi": ("AQI", "unavailable: no validated impact or scenario features"),
     "temperature": ("°C", "unavailable: no validated impact or scenario features"),
     "green_cover": ("%", "unavailable: no validated impact or scenario features"),
     "carbon_impact": ("tCO2e/year", "unavailable: no validated impact or scenario features"),
     "carbon_emissions": ("tCO2e/year", "unavailable: no provenance-backed emission estimate"),
-    "health_risk": ("score", "unavailable: no validated impact or scenario features"),
-    "health_benefit": ("inverse health-risk score", "derived from health-risk score"),
+    "health_risk": (HEALTH_RISK_UNIT, "unavailable: no validated impact or scenario features"),
+    "health_benefit": (f"inverse {HEALTH_RISK_UNIT}", "derived from health-risk score"),
     "cost": ("INR", "scenario cost estimate"),
     "population_exposure": ("people", "unavailable: no validated exposure estimate"),
     "execution_time": ("years", "scenario implementation parameters"),
@@ -167,7 +170,19 @@ def _estimate_pair(
     before = _read_model_prediction(metric, baseline_features) if baseline_features else None
     after = _read_model_prediction(metric, scenario_features) if scenario_features else None
     if after:
-        return before[0] if before else baseline, f"{metric} model: {after[1]}", after[0], after[2]
+        if metric == "health_risk":
+            if before is None:
+                if scenario_delta is None:
+                    return baseline, "unavailable: comparable baseline health-risk model features are required", None, None
+            else:
+                return (
+                    before[0] / HEALTH_RISK_MODEL_SCALE,
+                    f"{metric} model: {after[1]}",
+                    after[0] / HEALTH_RISK_MODEL_SCALE,
+                    after[2],
+                )
+        else:
+            return before[0] if before else baseline, f"{metric} model: {after[1]}", after[0], after[2]
     if baseline is None:
         if before:
             baseline = before[0]
@@ -304,16 +319,47 @@ def run_simulation(request: SimulationRequest) -> SimulationResult:
         impact_unit_field = IMPACT_UNIT_FIELDS.get(metric)
         if impacts and impact_unit_field:
             unit = impacts.units.get(metric, impacts.units.get(impact_unit_field, unit))
+        if metric == "health_risk":
+            unit = HEALTH_RISK_UNIT
         base = getattr(baseline_state, metric)
         source = default_source
         model_error = None
+        unavailable_override = None
+        impact_delta = impact_deltas[metric]
+        health_risk_impact_unit = (
+            impacts.units.get("health_risk", impacts.units.get("expected_health_risk_change"))
+            if impacts else None
+        )
+        if metric == "health_risk":
+            if base is not None and not 0.0 <= base <= 1.0:
+                base = None
+                impact_delta = None
+                unavailable_override = "The health-risk baseline is outside the Digital Twin composite score scale (0–1)."
+            if impact_delta is not None and health_risk_impact_unit != HEALTH_RISK_UNIT:
+                impact_delta = None
+                unavailable_override = (
+                    f"The health-risk impact estimate must declare units as {HEALTH_RISK_UNIT}."
+                )
         if metric in MODEL_INPUTS:
             model_name, _, _ = MODEL_INPUTS[metric]
             baseline_features = inputs.model_features.get(model_name, {})
             candidate_features = scenario_features.get(model_name, {})
             base, source, simulated, model_error = _estimate_pair(
-                metric, base, baseline_features, candidate_features, impact_deltas[metric]
+                metric, base, baseline_features, candidate_features, impact_delta
             )
+            if (
+                metric == "health_risk"
+                and candidate_features
+                and not baseline_features
+                and simulated is None
+            ):
+                unavailable_override = (
+                    "A comparable baseline health-risk model feature vector is required "
+                    "to compare the scenario prediction on the Digital Twin composite score scale (0–1)."
+                )
+            if metric == "health_risk" and simulated is not None and not 0.0 <= simulated <= 1.0:
+                simulated = None
+                unavailable_override = "The health-risk result is outside the Digital Twin composite score scale (0–1)."
             if source.startswith(f"{metric} model:"):
                 model_versions[model_name] = _model_digest(MODEL_INPUTS[metric][1])
         elif metric == "cost":
@@ -347,31 +393,58 @@ def run_simulation(request: SimulationRequest) -> SimulationResult:
             if metric == "carbon_impact" and impact_deltas[metric] is not None and base is None:
                 simulated = impact_deltas[metric]
             if metric == "health_benefit":
-                health_baseline = baseline_values.get("health_risk")
-                health_simulated = simulated_values.get("health_risk")
-                base = -health_baseline if health_baseline is not None else None
-                simulated = -health_simulated if health_simulated is not None else None
+                health_metric = metric_results.get("health_risk")
+                comparison_available = bool(
+                    health_metric
+                    and health_metric.availability == "available"
+                    and health_metric.baseline_value is not None
+                    and health_metric.simulated_value is not None
+                    and health_metric.absolute_delta is not None
+                )
+                if comparison_available and health_metric is not None:
+                    base = -health_metric.baseline_value
+                    simulated = -health_metric.simulated_value
+                else:
+                    base = None
+                    simulated = None
+                    unavailable_override = "Health benefit requires a comparable baseline and simulated health-risk score."
         estimate = inputs.scenario_estimates.get(metric)
         if estimate is not None:
-            simulated = estimate.value
-            source = (
-                f"{estimate.model_name} ({estimate.model_version})"
-                if estimate.model_name and estimate.model_version
-                else f"{estimate.source_type}: {estimate.source}"
-            )
-            unit = estimate.unit
-            model_error = estimate.uncertainty
-            if estimate.model_name and estimate.model_version:
-                model_versions[estimate.model_name] = estimate.model_version
+            if metric == "health_risk" and (
+                estimate.unit != HEALTH_RISK_UNIT
+                or not 0.0 <= estimate.value <= 1.0
+                or base is None
+                or not 0.0 <= base <= 1.0
+            ):
+                simulated = None
+                unavailable_override = (
+                    f"A comparable health-risk estimate must use {HEALTH_RISK_UNIT} and have a baseline on that scale."
+                )
+            elif metric == "health_benefit" and unavailable_override:
+                simulated = None
+            else:
+                simulated = estimate.value
+                source = (
+                    f"{estimate.model_name} ({estimate.model_version})"
+                    if estimate.model_name and estimate.model_version
+                    else f"{estimate.source_type}: {estimate.source}"
+                )
+                unit = estimate.unit
+                model_error = estimate.uncertainty
+                if estimate.model_name and estimate.model_version:
+                    model_versions[estimate.model_name] = estimate.model_version
         if not scenario.interventions and simulated is None and base is not None:
             simulated = base
             source = inputs.baseline_sources.get(metric, "Business-as-usual baseline state")
         elif simulated is None and metric in inputs.baseline_sources and source.startswith("unavailable:"):
             source = inputs.baseline_sources[metric]
         simulated_values[metric] = simulated
-        delta = simulated - base if simulated is not None and base is not None else (
-            impact_deltas[metric] if impact_deltas[metric] is not None else None
-        )
+        if metric == "health_risk":
+            delta = simulated - base if simulated is not None and base is not None else None
+        else:
+            delta = simulated - base if simulated is not None and base is not None else (
+                impact_deltas[metric] if metric != "health_benefit" and impact_deltas[metric] is not None else None
+            )
         metric_results[metric] = MetricDelta(
             baseline_value=base,
             simulated_value=simulated,
@@ -385,7 +458,7 @@ def run_simulation(request: SimulationRequest) -> SimulationResult:
             availability_reason=(
                 None
                 if simulated is not None
-                else _unavailable_reason(
+                else unavailable_override or _unavailable_reason(
                     metric,
                     scenario=scenario,
                     baseline_available=base is not None,

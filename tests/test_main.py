@@ -167,6 +167,7 @@ def test_health_risk_endpoint() -> None:
     data = response.json()
     assert data["target"] == "health_risk_score"
     assert "predicted_value" in data
+    assert data["unit"] == "composite score (0–100)"
 
 
 def test_digital_twin_summary_endpoint() -> None:

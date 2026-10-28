@@ -1,10 +1,49 @@
 from fastapi.testclient import TestClient
+import pandas as pd
 
 from app.main import app
 from app.config import settings
+from app.digital_twin import service as digital_twin_service
 from app.services.dashboard_auth import hash_password, token_subject, verify_password
 
 client = TestClient(app)
+
+
+def test_digital_twin_preserves_zero_and_missing_environmental_values(monkeypatch, tmp_path) -> None:
+    environment = pd.DataFrame({
+        "Ward_No": [1, 2],
+        "Ward_Name": ["Zero Ward", "Missing Ward"],
+        "final_AQI": [0.0, float("nan")],
+        "mean_LST_C": [0.0, float("nan")],
+        "vegetation_risk_index": [1.0, float("nan")],
+        "traffic_risk_index": [0.0, float("nan")],
+    })
+    health = pd.DataFrame({
+        "Ward_No": [1, 2],
+        "Ward_Name": ["Zero Ward", "Missing Ward"],
+        "TOT_P": [0.0, float("nan")],
+        "health_exposure_score": [0.0, float("nan")],
+        "population_vulnerability_index": [0.0, float("nan")],
+    })
+    frames = iter([environment, health])
+    monkeypatch.setattr(digital_twin_service.pd, "read_csv", lambda _path: next(frames))
+    monkeypatch.setattr(digital_twin_service, "SNAPSHOT_PATH", tmp_path / "digital-twin.json")
+
+    model = digital_twin_service.build_virtual_city_model()
+
+    zero_ward, missing_ward = model["wards"]
+    assert zero_ward["aqi"] == 0
+    assert zero_ward["temperature"] == 0
+    assert zero_ward["green_cover"] == 0
+    assert zero_ward["health_risk"] == 0
+    assert zero_ward["population"] == 0
+    assert missing_ward["aqi"] is None
+    assert missing_ward["temperature"] is None
+    assert missing_ward["green_cover"] is None
+    assert missing_ward["health_risk"] is None
+    assert missing_ward["population"] is None
+    assert model["summary"]["average_aqi"] == 0
+    assert model["summary"]["average_temperature_c"] == 0
 
 
 def test_dashboard_ward_geojson_uses_real_ward_metrics() -> None:

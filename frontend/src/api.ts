@@ -4,6 +4,8 @@ import type {
   AnnualWardCarbonResponse,
   CarbonScenarioRequest,
   CarbonScenarioResult,
+  CarbonCalculationRequest,
+  CarbonCalculationResult,
   CitySummary,
   EnvironmentalColumnMapping,
   EnvironmentalImportResult,
@@ -47,6 +49,8 @@ export const requests = {
     api.post<ScenarioSet>('/scenarios/generate', payload),
   calculateCarbonScenario: (payload: CarbonScenarioRequest) =>
     api.post<CarbonScenarioResult>('/carbon/scenarios/calculate', payload),
+  calculateCarbon: (payload: CarbonCalculationRequest) =>
+    api.post<CarbonCalculationResult>('/carbon/calculate', payload),
   environmentalPreview: (file: File) => {
     const body = new FormData()
     body.append('file', file)

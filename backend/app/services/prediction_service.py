@@ -248,7 +248,7 @@ def predict_health_risk(features: Mapping[str, Any]) -> dict[str, Any]:
         "model_name": metadata.get("model_name", "Health Risk Estimator"),
         "target": metadata.get("target", "health_risk_score"),
         "predicted_value": round(score, 2),
-        "unit": "%",
+        "unit": "composite score (0–100)",
         "risk_category": _risk_category(score),
         "features_used": len(required_features),
     }

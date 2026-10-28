@@ -288,6 +288,14 @@ tbody tr:last-child td { border-bottom: 0; }
 .carbon-method { padding-top: 10px; border-top: 1px solid #edf0ec; color: #768279; font-size: 9px; line-height: 1.5; }
 .carbon-method summary { color: #5b6a5f; cursor: pointer; font-weight: 700; }
 .carbon-method p { margin: 8px 0 0; }
+.activity-carbon-form { display: grid; gap: 16px; }
+.activity-carbon-side { display: grid; gap: 10px; }
+.activity-carbon-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.activity-carbon-heading h3 { margin: 0; color: #425148; font: 700 11px var(--mono); letter-spacing: .25px; }
+.activity-carbon-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; min-width: 0; padding: 12px; border: 1px solid #edf0ec; border-radius: 8px; background: #fbfcfa; }
+.activity-carbon-row legend { padding: 0 5px; color: #839087; font: 9px var(--mono); }
+.activity-carbon-row label { display: grid; align-content: start; gap: 5px; min-width: 0; color: #57645b; font-size: 9px; font-weight: 600; }
+.activity-carbon-row .button { justify-self: start; }
 .form-stack label, .explain-input-grid label, .counter-input-row label { display: grid; gap: 6px; color: #57645b; font-size: 10px; font-weight: 600; }
 input, textarea, select { min-width: 0; padding: 10px 11px; border: 1px solid #dfe6df; border-radius: 7px; outline: none; color: #334039; background: #fff; font-size: 11px; transition: border .15s, box-shadow .15s; }
 input:focus, textarea:focus, select:focus { border-color: #9fbe84; box-shadow: 0 0 0 3px #9fbe8419; }
@@ -507,6 +515,7 @@ input::placeholder, textarea::placeholder { color: #aeb8b0; }
   .metric-value { font-size: 19px; }
   .scenario-card-grid { grid-template-columns: 1fr; }
   .carbon-input-grid, .carbon-period-grid, .carbon-factor-grid, .carbon-factor-grid .carbon-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .activity-carbon-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .carbon-result-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .simulation-run-row { grid-template-columns: 1fr; }
   .simulation-baseline { min-height: 38px; }
@@ -526,6 +535,7 @@ input::placeholder, textarea::placeholder { color: #aeb8b0; }
   .login-form-wrap { padding: 34px 22px; }
 }
 @media (max-width: 460px) {
+  .activity-carbon-row { grid-template-columns: 1fr; }
   .topbar-location > svg:last-child { display: none; }
   .topbar-location strong { font-size: 10px; }
   .topbar-location small { font-size: 8px; }

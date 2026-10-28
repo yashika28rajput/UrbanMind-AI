@@ -10,6 +10,7 @@ produced without a traceable input.
 from __future__ import annotations
 
 from collections import defaultdict
+import math
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -57,19 +58,21 @@ class LineItem(BaseModel):
 
 
 def _line_items(activities: list[Activity]) -> list[LineItem]:
-    return [
-        LineItem(
+    items = []
+    for item in activities:
+        annual_quantity = item.quantity * PERIODS_PER_YEAR[item.period]
+        annual_emissions = annual_quantity * item.emission_factor_kgco2e_per_unit
+        if not math.isfinite(annual_quantity) or not math.isfinite(annual_emissions):
+            raise ValueError("Inputs produce non-finite annual emissions; reduce the activity quantity or factor.")
+        items.append(LineItem(
             name=item.name,
             quantity_unit=item.quantity_unit,
-            annual_quantity=item.quantity * PERIODS_PER_YEAR[item.period],
+            annual_quantity=annual_quantity,
             emission_factor_kgco2e_per_unit=item.emission_factor_kgco2e_per_unit,
             factor_source=item.factor_source,
-            annual_emissions_kgco2e=item.quantity
-            * PERIODS_PER_YEAR[item.period]
-            * item.emission_factor_kgco2e_per_unit,
-        )
-        for item in activities
-    ]
+            annual_emissions_kgco2e=annual_emissions,
+        ))
+    return items
 
 
 def _unit_by_name(activities: list[Activity]) -> dict[str, str]:
@@ -99,6 +102,8 @@ def calculate_carbon_reduction(request: CarbonCalculationRequest) -> dict[str, o
     baseline_total = sum(item.annual_emissions_kgco2e for item in baseline_items)
     projected_total = sum(item.annual_emissions_kgco2e for item in projected_items)
     reduction = baseline_total - projected_total
+    if not all(math.isfinite(value) for value in (baseline_total, projected_total, reduction)):
+        raise ValueError("Inputs produce non-finite annual emissions; reduce the activity quantity or factor.")
 
     if baseline_total > 0:
         reduction_percent: float | None = round(reduction / baseline_total * 100.0, 2)
@@ -106,6 +111,8 @@ def calculate_carbon_reduction(request: CarbonCalculationRequest) -> dict[str, o
     else:
         reduction_percent = None
         percent_note = "Baseline emissions are zero, so a percentage reduction is undefined."
+    if reduction_percent is not None and not math.isfinite(reduction_percent):
+        raise ValueError("Inputs produce a non-finite percentage; reduce the activity quantity or factor.")
 
     warnings = [
         "Emission factors and activity quantities are user-supplied; this result is only as "

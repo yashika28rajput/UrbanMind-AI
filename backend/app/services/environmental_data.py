@@ -6,7 +6,7 @@ import json
 import math
 import zipfile
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Any
@@ -563,3 +563,24 @@ def list_environmental_records(
             limit=limit,
             offset=offset,
         )
+
+
+def get_digital_twin_observations(*, as_of_date: date) -> list[EnvironmentalRecord]:
+    """Return supported, recent observation rows for the ward Digital Twin.
+
+    The Digital Twin applies metric-specific age and classification rules. This
+    query keeps its input bounded to the supported, potentially current metrics.
+    """
+    initialize_database()
+    earliest_date = as_of_date - timedelta(days=365)
+    with SessionLocal() as session:
+        rows = session.execute(
+            select(EnvironmentalObservation).where(
+                EnvironmentalObservation.metric.in_(
+                    ("aqi", "temperature", "land_surface_temperature", "green_cover")
+                ),
+                EnvironmentalObservation.observation_date >= earliest_date,
+                EnvironmentalObservation.observation_date <= as_of_date,
+            )
+        ).scalars().all()
+    return [_to_record_schema(row) for row in rows]

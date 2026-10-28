@@ -75,7 +75,7 @@ with (MODELS_DIR / "health_risk_model_info.json").open("w", encoding="utf-8") as
                 "population_vulnerability_index",
                 "health_exposure_score",
             ],
-            "unit": "%",
+            "unit": "composite score (0–100)",
         },
         handle,
         indent=2,

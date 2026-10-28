@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   annualWardCarbon: vi.fn(),
   generateScenarios: vi.fn(),
   calculateCarbonScenario: vi.fn(),
+  calculateCarbon: vi.fn(),
   simulateScenario: vi.fn(),
   getSimulation: vi.fn(),
   optimize: vi.fn(),
@@ -160,6 +161,23 @@ describe('UrbanMind dashboard', () => {
         },
       },
     }))
+    mocks.calculateCarbon.mockResolvedValue({
+      data: {
+        status: 'calculated',
+        method: 'activity_quantity_x_emission_factor',
+        evidence_type: 'user_supplied_inputs',
+        unit: 'kgCO2e/year',
+        baseline_emissions_kgco2e_per_year: 150,
+        projected_emissions_kgco2e_per_year: 80,
+        reduction_kgco2e_per_year: 70,
+        reduction_percent: 46.67,
+        reduction_percent_note: null,
+        direction: 'reduction',
+        baseline_line_items: [{ name: 'grid electricity', quantity: 300, quantity_unit: 'kWh', period: 'year', emission_factor_kgco2e_per_unit: 0.5, factor_source: 'Synthetic test factor source', annual_quantity: 300, annual_emissions_kgco2e: 150 }],
+        projected_line_items: [{ name: 'grid electricity', quantity: 160, quantity_unit: 'kWh', period: 'year', emission_factor_kgco2e_per_unit: 0.5, factor_source: 'Synthetic test factor source', annual_quantity: 160, annual_emissions_kgco2e: 80 }],
+        warnings: ['Synthetic test result; not a measurement.'],
+      },
+    })
     mocks.optimize.mockResolvedValue({ data: {} })
     mocks.decision.mockResolvedValue({
       data: {
@@ -211,11 +229,56 @@ describe('UrbanMind dashboard', () => {
     fireEvent.click(screen.getByRole('button', { name: /generate candidate scenarios/i }))
     expect(await screen.findByText('Backend generated strategy')).toBeInTheDocument()
     expect(screen.getByText('Carbon reduction unavailable: required emissions data is missing.')).toBeInTheDocument()
+    expect(screen.getAllByText(/no provenance-backed impact estimate or complete validated prediction input was supplied/i).length).toBeGreaterThan(0)
+    expect(screen.getByText(/no provenance-backed cost estimate is available/i)).toBeInTheDocument()
     expect(mocks.generateScenarios).toHaveBeenCalledWith(expect.objectContaining({
       city: 'Delhi',
       problem_statement: 'Reduce heat exposure',
       implementation_period_years: 2.5,
     }))
+  })
+
+  it('renders supplied zero AQI, temperature, and cost estimates as valid values', async () => {
+    mocks.generateScenarios.mockResolvedValue({
+      data: {
+        city: 'Delhi',
+        scenarios: [{
+          scenario_id: 'SCN-ZERO-METRICS',
+          scenario_version: 1,
+          name: 'Verified zero impact',
+          description: 'Zero estimates supplied with provenance.',
+          city: 'Delhi',
+          status: 'VALIDATED',
+          estimated_cost: {
+            total_estimated_cost: 0,
+            currency: 'INR',
+            provenance: [{ source_type: 'validated_model', source_id: 'cost-model' }],
+          },
+          expected_impacts: {
+            expected_aqi_change: 0,
+            expected_uhi_change: 0,
+            units: { aqi: 'AQI points', temperature: '°C' },
+            provenance: [{ source_type: 'validated_model', source_id: 'impact-model' }],
+          },
+        }],
+      },
+    })
+    renderDashboard()
+    fireEvent.click(await screen.findByRole('navigation').then((navigation) => within(navigation).findByRole('link', { name: /scenario lab/i })))
+    fireEvent.change(await screen.findByLabelText('Problem statement'), { target: { value: 'Reduce heat exposure' } })
+    fireEvent.change(screen.getByLabelText(/Implementation duration \(years\)/), { target: { value: '2' } })
+    fireEvent.click(screen.getByRole('button', { name: /generate candidate scenarios/i }))
+
+    const card = (await screen.findByText('Verified zero impact')).closest<HTMLElement>('.scenario-card')
+    if (!card) throw new Error('Zero estimate scenario card was not rendered.')
+    expect(within(card).getByText('0 INR')).toBeInTheDocument()
+    expect(within(card).getByText('0 AQI points')).toBeInTheDocument()
+    expect(within(card).getByText('0 °C')).toBeInTheDocument()
+    for (const label of ['Estimated cost', 'AQI change', 'UHI change']) {
+      const metric = within(card).getByText(label).closest<HTMLElement>('.data-field')
+      if (!metric) throw new Error(`${label} metric was not rendered.`)
+      expect(within(metric).queryByText('Unavailable')).not.toBeInTheDocument()
+    }
   })
 
   it('shows the modelled historical ward estimate and coverage separately from Carbon Reduction', async () => {
@@ -375,6 +438,32 @@ describe('UrbanMind dashboard', () => {
     expect(mocks.getSimulation).toHaveBeenCalledWith('SIM-158AF5F07F51')
   })
 
+  it('does not offer saved carbon calculation records as Digital Twin simulation candidates', async () => {
+    mocks.scenarios.mockResolvedValue({ data: { scenarios: [{
+      scenario_id: 'SCN-CARBON-DEMO',
+      scenario_version: 1,
+      name: 'Illustrative bus electrification comparison',
+      description: 'A standalone transport carbon calculation.',
+      city: 'Delhi',
+      status: 'SIMULATED',
+      provenance: { carbon_scenario_result: { scenario_name: 'Illustrative bus electrification comparison' } },
+    }, {
+      scenario_id: 'SCN-DT-DEMO',
+      scenario_version: 1,
+      name: 'Urban Forest Expansion',
+      description: 'A Digital Twin intervention candidate.',
+      city: 'Delhi',
+      zone: 'Ward_80',
+      status: 'VALIDATED',
+    }] } })
+
+    renderDashboard('/simulation')
+
+    const selector = await screen.findByLabelText('Candidate scenario')
+    expect(within(selector).queryByRole('option', { name: /Illustrative bus electrification comparison/ })).not.toBeInTheDocument()
+    expect(within(selector).getByRole('option', { name: /Urban Forest Expansion · SCN-DT-DEMO/ })).toBeInTheDocument()
+  })
+
   it('rejects a missing or zero planner duration before scenario generation', async () => {
     renderDashboard()
     fireEvent.click(await screen.findByRole('navigation').then((navigation) => within(navigation).findByRole('link', { name: /scenario lab/i })))
@@ -442,6 +531,41 @@ describe('UrbanMind dashboard', () => {
       diesel_factor: expect.objectContaining({ status: 'Illustrative' }),
     }))
     expect(screen.queryByTestId('carbon-scenario-result')).not.toBeInTheDocument()
+  })
+
+  it('submits sourced baseline and projected activities to the activity carbon API', async () => {
+    renderDashboard()
+    fireEvent.click(await screen.findByRole('navigation').then((navigation) => within(navigation).findByRole('link', { name: /scenario lab/i })))
+    const baseline = await screen.findByRole('region', { name: 'baseline activities' })
+    const projected = screen.getByRole('region', { name: 'projected activities' })
+    for (const [section, quantity] of [[baseline, '300'], [projected, '160']] as const) {
+      fireEvent.change(within(section).getByLabelText('Activity name'), { target: { value: 'grid electricity' } })
+      fireEvent.change(within(section).getByLabelText('Quantity'), { target: { value: quantity } })
+      fireEvent.change(within(section).getByLabelText('Quantity unit'), { target: { value: 'kWh' } })
+      fireEvent.change(within(section).getByLabelText(/kg CO₂e/), { target: { value: '0.5' } })
+      fireEvent.change(within(section).getByLabelText('Emission factor source / reference'), { target: { value: 'Synthetic test factor source' } })
+    }
+    fireEvent.click(screen.getByRole('button', { name: /calculate co/i }))
+    expect(await screen.findByTestId('activity-carbon-result')).toBeInTheDocument()
+    expect(screen.getByText('150 kgCO2e/year')).toBeInTheDocument()
+    expect(screen.getByText('80 kgCO2e/year')).toBeInTheDocument()
+    expect(screen.getByText('70 kgCO2e/year')).toBeInTheDocument()
+    expect(mocks.calculateCarbon).toHaveBeenCalledWith({
+      baseline: [{ name: 'grid electricity', quantity: 300, quantity_unit: 'kWh', period: 'year', emission_factor_kgco2e_per_unit: 0.5, factor_source: 'Synthetic test factor source' }],
+      projected: [{ name: 'grid electricity', quantity: 160, quantity_unit: 'kWh', period: 'year', emission_factor_kgco2e_per_unit: 0.5, factor_source: 'Synthetic test factor source' }],
+    })
+  })
+
+  it('requires explicit zero quantities or factors instead of treating empty fields as zero', async () => {
+    renderDashboard()
+    fireEvent.click(await screen.findByRole('navigation').then((navigation) => within(navigation).findByRole('link', { name: /scenario lab/i })))
+    const baseline = await screen.findByRole('region', { name: 'baseline activities' })
+    fireEvent.change(within(baseline).getByLabelText('Activity name'), { target: { value: 'fuel' } })
+    fireEvent.change(within(baseline).getByLabelText('Quantity unit'), { target: { value: 'litre' } })
+    fireEvent.change(within(baseline).getByLabelText('Emission factor source / reference'), { target: { value: 'Synthetic test factor source' } })
+    fireEvent.submit(screen.getByTestId('activity-carbon-form'))
+    expect(await screen.findByRole('alert')).toHaveTextContent('enter 0 explicitly')
+    expect(mocks.calculateCarbon).not.toHaveBeenCalled()
   })
 
   it('displays a provenance-backed carbon estimate with its annual CO2e unit', async () => {

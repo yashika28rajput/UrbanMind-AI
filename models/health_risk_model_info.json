@@ -7,5 +7,5 @@
     "population_vulnerability_index",
     "health_exposure_score"
   ],
-  "unit": "%"
+  "unit": "composite score (0–100)"
 }

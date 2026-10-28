@@ -48,6 +48,7 @@ export interface Scenario {
       source_type: string
       source: string
     }
+    carbon_scenario_result?: CarbonScenarioResult
   }
   estimated_cost?: {
     total_estimated_cost?: number | null
@@ -60,6 +61,7 @@ export interface Scenario {
     expected_green_cover_change?: number | null
     expected_carbon_reduction?: number | null
     expected_health_risk_change?: number | null
+    units?: Record<string, string>
   } | null
 }
 
@@ -137,6 +139,41 @@ export interface CarbonScenarioResult {
       status: 'Illustrative' | 'Unverified' | 'Verified'
     }
   }
+}
+
+export interface CarbonActivityInput {
+  name: string
+  quantity: number
+  quantity_unit: string
+  period: 'day' | 'month' | 'year'
+  emission_factor_kgco2e_per_unit: number
+  factor_source: string
+}
+
+export interface CarbonCalculationRequest {
+  baseline: CarbonActivityInput[]
+  projected: CarbonActivityInput[]
+}
+
+export interface CarbonCalculationLineItem extends CarbonActivityInput {
+  annual_quantity: number
+  annual_emissions_kgco2e: number
+}
+
+export interface CarbonCalculationResult {
+  status: 'calculated'
+  method: 'activity_quantity_x_emission_factor'
+  evidence_type: 'user_supplied_inputs'
+  unit: 'kgCO2e/year'
+  baseline_emissions_kgco2e_per_year: number
+  projected_emissions_kgco2e_per_year: number
+  reduction_kgco2e_per_year: number
+  reduction_percent: number | null
+  reduction_percent_note: string | null
+  direction: 'reduction' | 'increase' | 'no_change'
+  baseline_line_items: CarbonCalculationLineItem[]
+  projected_line_items: CarbonCalculationLineItem[]
+  warnings: string[]
 }
 
 export interface AnnualWardCarbonRecord {

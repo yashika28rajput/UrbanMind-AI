@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import DataManagementPage from './DataManagementPage'
 
@@ -68,7 +68,7 @@ describe('Environmental data management', () => {
     expect(await screen.findByText('ward-observations.csv')).toBeInTheDocument()
     expect(screen.getByLabelText('Map Ward ID')).toHaveValue('Ward_No')
     expect(screen.getByLabelText('Map Observation date')).toHaveValue('timestamp_local')
-    expect(await screen.findByText('Station A')).toBeInTheDocument()
+    expect(await screen.findAllByText('Station A')).toHaveLength(2)
 
     fireEvent.click(screen.getByRole('button', { name: /validate mapping/i }))
     expect(await screen.findByText('Validation report')).toBeInTheDocument()
@@ -91,18 +91,18 @@ describe('Environmental data management', () => {
   it('requires explicit manual fields, submits a typed record, and shows classified history', async () => {
     render(<DataManagementPage wards={wards} />)
     expect(await screen.findByText('Station A')).toBeInTheDocument()
-    expect(screen.getByText('observed')).toBeInTheDocument()
+    expect(within(screen.getByRole('table')).getByText('observed')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /save observation/i }))
     expect(await screen.findByText('Select a ward.')).toBeInTheDocument()
     expect(mocks.createEnvironmentalRecord).not.toHaveBeenCalled()
 
-    fireEvent.change(screen.getByLabelText('Ward'), { target: { value: '80' } })
-    fireEvent.change(screen.getByLabelText('Observation date'), { target: { value: '2026-07-03' } })
-    fireEvent.change(screen.getByLabelText('Metric'), { target: { value: 'pm25' } })
-    fireEvent.change(screen.getByLabelText('Value'), { target: { value: '12.4' } })
-    fireEvent.change(screen.getByLabelText('Source name'), { target: { value: 'Manual sensor record' } })
-    fireEvent.change(screen.getByLabelText('Data classification'), { target: { value: 'observed' } })
+    fireEvent.change(screen.getByLabelText(/^Ward/), { target: { value: '80' } })
+    fireEvent.change(screen.getByLabelText(/^Observation date/), { target: { value: '2026-07-03' } })
+    fireEvent.change(screen.getByLabelText(/^Metric/), { target: { value: 'pm25' } })
+    fireEvent.change(screen.getByLabelText(/^Value/), { target: { value: '12.4' } })
+    fireEvent.change(screen.getByLabelText(/^Source name/), { target: { value: 'Manual sensor record' } })
+    fireEvent.change(screen.getByLabelText(/^Data classification/), { target: { value: 'observed' } })
     fireEvent.click(screen.getByRole('button', { name: /save observation/i }))
 
     expect(await screen.findByText(/Saved ENV-123 as observed/)).toBeInTheDocument()
@@ -124,6 +124,7 @@ describe('Environmental data management', () => {
     fireEvent.change(screen.getByLabelText('Observation date'), { target: { value: '2026-07-03' } })
     fireEvent.change(screen.getByLabelText('Value'), { target: { value: '15' } })
     fireEvent.change(screen.getByLabelText('Source name'), { target: { value: 'Sensor' } })
+    fireEvent.change(screen.getByLabelText('Data classification'), { target: { value: 'observed' } })
     fireEvent.click(screen.getByRole('button', { name: /save observation/i }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Record conflict')
     expect(screen.getByLabelText('Value')).toHaveValue(15)

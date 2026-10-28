@@ -77,7 +77,8 @@ def _scenario() -> Scenario:
             expected_uhi_change=-1.5,
             expected_green_cover_change=2,
             expected_carbon_reduction=3,
-            expected_health_risk_change=-2,
+            expected_health_risk_change=-0.02,
+            units={"expected_health_risk_change": "composite score (0–1)"},
             provenance=provenance,
         ),
     )
@@ -127,7 +128,7 @@ def test_scenario_to_simulation_calculates_baseline_deltas_and_is_reproducible()
                 "temperature": 39,
                 "green_cover": 14,
                 "carbon_emissions": 50,
-                "health_risk": 60,
+                "health_risk": 0.6,
                 "population_exposure": 1000,
                 "cost": 1000,
             }
@@ -146,7 +147,10 @@ def test_scenario_to_simulation_calculates_baseline_deltas_and_is_reproducible()
     assert result.simulated_state.carbon_emissions == 47
     assert result.metrics["carbon_impact"].simulated_value == 3
     assert result.metrics["carbon_impact"].availability == "available"
-    assert result.simulated_state.health_risk == 58
+    assert result.simulated_state.health_risk == pytest.approx(0.58)
+    assert result.metrics["health_risk"].unit == "composite score (0–1)"
+    assert result.metrics["health_benefit"].baseline_value == pytest.approx(-0.6)
+    assert result.metrics["health_benefit"].simulated_value == pytest.approx(-0.58)
     assert result.simulated_state.cost == 5000
     assert result.metrics["population_exposure"].availability == "unavailable"
     assert result.metadata.reproducibility_key == repeated.metadata.reproducibility_key
@@ -225,7 +229,6 @@ def test_intervention_simulation_reports_baseline_and_unavailable_effects() -> N
         result.metrics[metric].availability_reason
         for metric in ("green_cover", "carbon_impact", "cost", "sustainability")
     )
-
     response = client.post(
         "/api/v1/scenarios/simulate",
         json={
@@ -247,6 +250,134 @@ def test_intervention_simulation_reports_baseline_and_unavailable_effects() -> N
     assert response_metrics["aqi"]["simulated_value"] is None
     assert response_metrics["aqi"]["availability_reason"]
     assert "rule-based placeholder" in response_metrics["carbon_impact"]["availability_reason"]
+
+
+def test_health_risk_model_output_requires_a_comparable_baseline_feature_vector() -> None:
+    scenario = _scenario().model_copy(update={
+        "city": "Delhi",
+        "zone": "Ward_80",
+        "expected_impacts": None,
+        "estimated_cost": None,
+    })
+    features = {
+        "AQI_risk_index": 0.2,
+        "heat_risk_index": 0.3,
+        "population_vulnerability_index": 0.4,
+        "health_exposure_score": 20.0,
+    }
+    result = run_simulation(SimulationRequest(
+        urban_state=UrbanState(
+            workflow_id="health-risk-scale-mismatch",
+            request={"query": "Health risk comparison", "city": "Delhi", "zone": "Ward_80"},
+        ),
+        scenario=scenario,
+        simulation_input=SimulationInput(
+            scenario_model_features={"health_risk": features},
+        ),
+    ))
+
+    metric = result.metrics["health_risk"]
+    assert metric.baseline_value == pytest.approx(0.1664)
+    assert metric.simulated_value is None
+    assert metric.absolute_delta is None
+    assert metric.unit == "composite score (0–1)"
+    assert "comparable baseline" in metric.availability_reason
+
+
+def test_health_risk_model_compares_baseline_and_scenario_on_digital_twin_scale() -> None:
+    scenario = _scenario().model_copy(update={
+        "city": "Delhi",
+        "zone": "Ward_80",
+        "expected_impacts": None,
+        "estimated_cost": None,
+    })
+    baseline_features = {
+        "AQI_risk_index": 0.2,
+        "heat_risk_index": 0.3,
+        "population_vulnerability_index": 0.4,
+        "health_exposure_score": 20.0,
+    }
+    result = run_simulation(SimulationRequest(
+        urban_state=UrbanState(
+            workflow_id="health-risk-scale-comparable",
+            request={"query": "Health risk comparison", "city": "Delhi", "zone": "Ward_80"},
+        ),
+        scenario=scenario,
+        simulation_input=SimulationInput(
+            model_features={"health_risk": baseline_features},
+            scenario_model_features={"health_risk": {"health_exposure_score": 30.0}},
+        ),
+    ))
+
+    metric = result.metrics["health_risk"]
+    assert metric.baseline_value == pytest.approx(0.27)
+    assert metric.simulated_value == pytest.approx(0.285)
+    assert metric.absolute_delta == pytest.approx(0.015)
+    assert metric.unit == "composite score (0–1)"
+    assert result.metrics["health_benefit"].baseline_value == pytest.approx(-0.27)
+    assert result.metrics["health_benefit"].simulated_value == pytest.approx(-0.285)
+
+
+def test_health_benefit_is_unavailable_without_a_health_risk_comparison() -> None:
+    scenario = _scenario().model_copy(update={
+        "city": "Delhi",
+        "zone": "Ward_80",
+        "expected_impacts": None,
+        "estimated_cost": None,
+    })
+    result = run_simulation(SimulationRequest(
+        urban_state=UrbanState(
+            workflow_id="health-benefit-unavailable",
+            request={"query": "Health risk comparison", "city": "Delhi", "zone": "Ward_80"},
+        ),
+        scenario=scenario,
+    ))
+
+    health_risk = result.metrics["health_risk"]
+    health_benefit = result.metrics["health_benefit"]
+    assert health_risk.baseline_value == pytest.approx(0.1664)
+    assert health_risk.simulated_value is None
+    assert health_benefit.baseline_value is None
+    assert health_benefit.simulated_value is None
+    assert health_benefit.absolute_delta is None
+    assert health_benefit.availability == "unavailable"
+    assert "comparable baseline" in health_benefit.availability_reason
+
+
+def test_simulation_api_maps_provenance_backed_zero_metrics_without_marking_them_missing() -> None:
+    provenance = [EstimateProvenance(source_type="validated_model", source_id="zero-estimate-test")]
+    scenario = _scenario().model_copy(update={
+        "estimated_cost": CostEstimate(total_estimated_cost=0, currency="INR", provenance=provenance),
+        "expected_impacts": ImpactEstimate(
+            expected_aqi_change=0,
+            expected_uhi_change=0,
+            expected_carbon_reduction=0,
+            units={"aqi": "AQI points", "temperature": "°C", "carbon_impact": "tCO2e/year"},
+            provenance=provenance,
+        ),
+    })
+    response = client.post(
+        "/api/v1/scenarios/simulate",
+        json={
+            "scenario": scenario.model_dump(mode="json"),
+            "urban_state": {
+                "workflow_id": "zero-metric-api-test",
+                "request": {"query": "Verify zero estimates", "city": "TestCity", "zone": "Ward 1"},
+            },
+            "simulation_input": {
+                "baseline_metrics": {"aqi": 0, "temperature": 0, "carbon_impact": 0, "cost": 0},
+            },
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    metrics = response.json()["metrics"]
+    for metric, unit in (("aqi", "AQI points"), ("temperature", "°C"), ("carbon_impact", "tCO2e/year"), ("cost", "INR")):
+        assert metrics[metric]["simulated_value"] == 0
+        assert metrics[metric]["absolute_delta"] == 0
+        assert metrics[metric]["unit"] == unit
+        assert metrics[metric]["availability"] == "available"
+        assert metrics[metric]["availability_reason"] is None
 
 
 def test_partial_simulation_keeps_provenance_backed_estimates_and_reasons() -> None:
